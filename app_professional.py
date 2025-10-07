@@ -57,6 +57,23 @@ else:
 
 app = Flask(__name__)
 
+def get_random_user_agent():
+    """Generează un user agent aleatoriu pentru a evita detectarea bot-ului"""
+    user_agents = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    ]
+    return random.choice(user_agents)
+
+def add_random_delay():
+    """Adaugă un delay aleatoriu pentru a simula comportamentul uman"""
+    delay = random.uniform(1.0, 3.0)  # Delay între 1-3 secunde
+    time.sleep(delay)
+
 # Configure logging
 if IS_RAILWAY:
     # Production logging
@@ -548,19 +565,26 @@ def convert_video_to_audio(url, conversion_id, settings):
                 'extractaudio': True,  # Forțează extragerea audio
                 'download_archive': None,  # Nu folosi archive
                 'force_download': True,  # Forțează descărcarea
-                # Anti-bot measures
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+                # Anti-bot measures - Enhanced
+                'user_agent': get_random_user_agent(),
                 'referer': 'https://www.youtube.com/',
                 'origin': 'https://www.youtube.com',
                 'cookiesfrombrowser': None,  # Nu folosi cookies
-                'extractor_retries': 5,  # Increased retry pentru extractors
-                'sleep_interval': 1,  # Pauză între cereri
-                'max_sleep_interval': 5,  # Pauză maximă
-                'sleep_interval_subtitles': 1,  # Pauză pentru subtitrări
-                'sleep_interval_requests': 1,  # Pauză pentru cereri
-                'sleep_interval_fragments': 1,  # Pauză pentru fragmente
-                'retries': 5,  # Increased retries for better reliability
-                'fragment_retries': 5,  # Increased fragment retries
+                'extractor_retries': 3,  # Reduced to avoid detection
+                'sleep_interval': 2,  # Increased pause between requests
+                'max_sleep_interval': 8,  # Increased max pause
+                'sleep_interval_subtitles': 2,  # Increased pause for subtitles
+                'sleep_interval_requests': 2,  # Increased pause for requests
+                'sleep_interval_fragments': 2,  # Increased pause for fragments
+                'retries': 3,  # Reduced retries to avoid detection
+                'fragment_retries': 3,  # Fragment retries
+                'http_chunk_size': 1048576,  # 1MB chunks
+                'socket_timeout': 30,  # Socket timeout
+                'no_check_certificate': True,  # Skip certificate check
+                'prefer_insecure': False,  # Prefer secure connections
+                'geo_bypass': True,  # Bypass geo restrictions
+                'geo_bypass_country': 'US',  # Use US as country
+                'geo_bypass_ip_block': None,  # No IP blocking
             }
         
         # Adaugă path-ul de output cu extensia corectă (fără conversion_id în nume)
@@ -691,6 +715,9 @@ def convert_video_to_audio(url, conversion_id, settings):
             print(f"Railway: Extract flat: {ydl_opts.get('extract_flat', 'Not set')}")
             print(f"Railway: Downloads directory: {DOWNLOADS_DIR}")
             print(f"Railway: User agent: {ydl_opts.get('user_agent', 'Not set')}")
+        
+        # Add random delay before download to avoid bot detection
+        add_random_delay()
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
