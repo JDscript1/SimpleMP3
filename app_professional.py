@@ -447,6 +447,41 @@ def get_video_info(url, conversion_id=None):
         print(f"ERROR: Information extraction error: {e}")
         return None
 
+def get_available_formats(url):
+    """Obține formaturile disponibile pentru un video"""
+    try:
+        ydl_opts = {
+            'quiet': True,
+            'no_warnings': True,
+            'extract_flat': False,
+            'listformats': True
+        }
+        
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            formats = info.get('formats', [])
+            
+            # Filtrează doar formaturile audio (fără video)
+            audio_formats = []
+            for fmt in formats:
+                # Doar formaturile care au audio și NU au video
+                if (fmt.get('acodec') != 'none' and 
+                    fmt.get('vcodec') == 'none' and 
+                    fmt.get('format_note', '').lower() not in ['video', 'video only']):
+                    audio_formats.append({
+                        'format_id': fmt.get('format_id'),
+                        'ext': fmt.get('ext'),
+                        'quality': fmt.get('quality'),
+                        'filesize': fmt.get('filesize'),
+                        'acodec': fmt.get('acodec'),
+                        'vcodec': fmt.get('vcodec')
+                    })
+            
+            return audio_formats
+    except Exception as e:
+        print(f"ERROR: Could not get available formats: {e}")
+        return []
+
 def convert_video_to_audio(url, conversion_id, settings):
     """Convertește video-ul în audio cu setările specificate"""
     start_time = time.time()  # Define start_time at the beginning
@@ -488,9 +523,9 @@ def convert_video_to_audio(url, conversion_id, settings):
                 duration=conversions[conversion_id].get('duration', 0)
             )
         else:
-            # Setări de bază optimizate pentru conversie MP3
+            # Setări de bază optimizate pentru conversie MP3 - DOAR AUDIO
             ydl_opts = {
-                'format': 'bestaudio[ext=m4a]/bestaudio/best',
+                'format': 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio[ext=mp4]/bestaudio',
                 'quiet': IS_RAILWAY,  # Quiet în producție, verbose în development
                 'no_warnings': IS_RAILWAY,  # Fără warning-uri în producție
                 'extract_flat': False,
@@ -501,6 +536,7 @@ def convert_video_to_audio(url, conversion_id, settings):
                 'ignoreerrors': True,
                 'no_check_certificate': True,
                 'prefer_insecure': False,
+                'format_sort': ['res', 'ext:mp3:m4a:webm:mp4'],  # Prioritizează formaturile audio
                 'socket_timeout': 30,  # Mărit pentru fișiere mari
                 'retries': 3,  # Mărit pentru fișiere mari
                 'fragment_retries': 3,  # Mărit pentru fișiere mari
@@ -552,8 +588,8 @@ def convert_video_to_audio(url, conversion_id, settings):
                 os.environ['FFPROBE_BINARY'] = 'ffprobe'
         
         if settings['audio_format'] == 'mp3':
-            # Forțează descărcarea audio și conversie MP3
-            ydl_opts['format'] = 'bestaudio[ext=m4a]/bestaudio/best'
+            # Forțează descărcarea DOAR AUDIO și conversie MP3
+            ydl_opts['format'] = 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio[ext=mp4]/bestaudio'
             ydl_opts['postprocessors'] = [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -871,9 +907,33 @@ def convert_video_to_audio(url, conversion_id, settings):
             print(f"Conversion completed: {conversion_id}")
             
     except Exception as e:
+        error_msg = str(e)
         print(f"ERROR: Conversion error: {e}")
+        
+        # Gestionare specifică pentru formaturi indisponibile
+        if "Requested format is not available" in error_msg:
+            print("Attempting fallback format...")
+            try:
+                # Obține formaturile disponibile
+                available_formats = get_available_formats(url)
+                print(f"Available audio formats: {available_formats}")
+                
+                # Încearcă cu format mai simplu - DOAR AUDIO
+                ydl_opts_fallback = ydl_opts.copy()
+                ydl_opts_fallback['format'] = 'bestaudio'
+                
+                with yt_dlp.YoutubeDL(ydl_opts_fallback) as ydl:
+                    ydl.download([url])
+                
+                # Continuă cu procesarea normală
+                print("Fallback format successful")
+                return
+            except Exception as fallback_error:
+                print(f"Fallback also failed: {fallback_error}")
+                error_msg = f"Format not available. Available formats: {len(available_formats) if 'available_formats' in locals() else 0}. Error: {str(fallback_error)}"
+        
         conversions[conversion_id]['status'] = 'error'
-        conversions[conversion_id]['error'] = str(e)
+        conversions[conversion_id]['error'] = error_msg
 
 def update_progress(conversion_id, d):
     """Actualizează progresul conversiei"""
