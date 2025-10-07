@@ -1,0 +1,3194 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleMP3 Converter - Video to MP3 Converter</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="SimpleMP3 Converter - Convert any video to high-quality MP3 with modern interface and professional features">
+    <meta name="theme-color" content="#ff6b6b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SimpleMP3">
+    <meta name="msapplication-TileColor" content="#0f0f0f">
+    <meta name="msapplication-config" content="/static/browserconfig.xml">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/images/apple-touch-icon.png">
+    <link rel="mask-icon" href="/static/images/safari-pinned-tab.svg" color="#ff6b6b">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Dark Theme (Default) */
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-muted: #666666;
+            --accent-primary: #ff6b6b;
+            --accent-secondary: #4ecdc4;
+            --accent-success: #51cf66;
+            --accent-warning: #ffd43b;
+            --accent-error: #ff6b6b;
+            --border-color: #333333;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        /* Light Theme */
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #e9ecef;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-muted: #adb5bd;
+            --accent-primary: #007bff;
+            --accent-secondary: #28a745;
+            --accent-success: #28a745;
+            --accent-warning: #ffc107;
+            --accent-error: #dc3545;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        /* Keyframes - Animations */
+        @keyframes rotate-theme {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin-settings {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse-language {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-primary);
+            position: relative;
+            overflow: hidden;
+            animation: rotate-theme 4s linear infinite;
+        }
+
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.4s ease;
+            z-index: 0;
+        }
+
+        .theme-toggle:hover::before {
+            width: 60px;
+            height: 60px;
+        }
+
+        .theme-toggle:hover {
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .theme-toggle i {
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+
+
+        .settings-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-primary);
+            position: relative;
+            overflow: hidden;
+            animation: spin-settings 3s linear infinite;
+        }
+
+
+        .settings-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--accent-secondary);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.4s ease;
+            z-index: 0;
+        }
+
+        .settings-btn:hover::before {
+            width: 60px;
+            height: 60px;
+        }
+
+        .settings-btn:hover {
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+        }
+
+        .settings-btn i {
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+
+
+        .language-toggle {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-primary);
+            position: relative;
+            overflow: hidden;
+            animation: pulse-language 4s ease-in-out infinite;
+        }
+
+
+        .language-toggle::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.4s ease;
+            z-index: 0;
+        }
+
+        .language-toggle:hover::before {
+            width: 60px;
+            height: 60px;
+        }
+
+        .language-toggle:hover {
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .language-toggle i {
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+            margin-right: 2px;
+        }
+
+        .language-code {
+            position: relative;
+            z-index: 1;
+            font-size: 0.7rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        /* Force animations - advanced solution */
+        .force-animation {
+            animation-duration: 2s !important;
+            animation-iteration-count: infinite !important;
+            animation-timing-function: linear !important;
+            animation-fill-mode: both !important;
+            animation-play-state: running !important;
+        }
+
+        .force-animation.theme-toggle {
+            animation-name: rotate-theme !important;
+            animation-duration: 3s !important;
+        }
+
+        .force-animation.settings-btn {
+            animation-name: spin-settings !important;
+            animation-duration: 2s !important;
+        }
+
+        .force-animation.language-toggle {
+            animation-name: pulse-language !important;
+            animation-duration: 2s !important;
+            animation-timing-function: ease-in-out !important;
+        }
+
+        /* Floating button styles have been removed */
+
+        /* Styles for settings modal options have been removed */
+
+        /* Video Preview */
+        .video-preview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .video-preview.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .preview-content {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .preview-thumbnail {
+            flex-shrink: 0;
+        }
+
+        .preview-thumbnail img {
+            width: 120px;
+            height: 90px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .preview-info {
+            flex: 1;
+            color: white;
+        }
+
+        .preview-info h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.3;
+            color: var(--text-primary);
+        }
+
+        .preview-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .preview-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .preview-detail i {
+            width: 16px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .preview-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .preview-thumbnail img {
+                width: 100px;
+                height: 75px;
+            }
+        }
+
+        /* Legal Disclaimer */
+        .legal-disclaimer {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            border: 2px solid #ff5252;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            animation: pulse-warning 3s ease-in-out infinite;
+        }
+
+        .disclaimer-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            color: white;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .disclaimer-content i {
+            font-size: 1.2rem;
+            margin-top: 0.1rem;
+            flex-shrink: 0;
+        }
+
+        .disclaimer-content strong {
+            font-weight: 700;
+        }
+
+        @keyframes pulse-warning {
+            0%, 100% {
+                box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+                transform: scale(1.01);
+            }
+        }
+
+        /* Responsive disclaimer */
+        @media (max-width: 768px) {
+            .disclaimer-content {
+                font-size: 0.8rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .disclaimer-content i {
+                align-self: flex-start;
+            }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Main Card */
+        .main-card {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .card-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-align: center;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-subtitle {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        /* URL Input Section */
+        .url-section {
+            margin-bottom: 2rem;
+        }
+
+        .url-input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        .url-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            min-width: 140px;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(2px) scale(0.98);
+            transition: all 0.1s ease;
+        }
+
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            animation: pulse-primary 2s infinite;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+            animation: none;
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        @keyframes pulse-primary {
+            0% {
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            }
+            50% {
+                box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+            }
+            100% {
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            }
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-secondary::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--accent-secondary);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.6s ease;
+            z-index: 0;
+        }
+
+        .btn-secondary:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-secondary:hover {
+            color: white;
+            transform: translateY(-3px) scale(1.05);
+            border-color: var(--accent-secondary);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-secondary span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-success {
+            background: var(--accent-success);
+            color: white;
+            position: relative;
+            overflow: hidden;
+            animation: bounce-success 3s infinite;
+        }
+
+        .btn-success::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-success:hover::before {
+            left: 100%;
+        }
+
+        .btn-success:hover {
+            background: #40c057;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(81, 207, 102, 0.4);
+            animation: none;
+        }
+
+        .btn-success:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        @keyframes bounce-success {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-3px);
+            }
+            60% {
+                transform: translateY(-2px);
+            }
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            /* Keep animations for disabled buttons */
+        }
+
+        .btn:disabled:hover {
+            transform: none !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* All buttons should have the same color as convert button */
+        .btn-primary, .btn-success, .btn-secondary, .btn-info, .btn-warning, .btn-danger {
+            background: var(--gradient-primary) !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+        }
+
+        .btn-primary:hover, .btn-success:hover, .btn-secondary:hover, .btn-info:hover, .btn-warning:hover, .btn-danger:hover {
+            transform: translateY(-3px) scale(1.05) !important;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5) !important;
+        }
+
+        /* Video Info Section */
+        .video-info {
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .video-info.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .video-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .video-details {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .video-detail {
+            margin-bottom: 0.3rem;
+        }
+
+        .video-detail i {
+            width: 20px;
+            color: var(--accent-primary);
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .progress-section.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .progress-bar-container {
+            background: var(--bg-primary);
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar {
+            background: var(--gradient-primary);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: progress-shine 2s infinite;
+        }
+
+        @keyframes progress-shine {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        .progress-text {
+            text-align: center;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .progress-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Download Section */
+        .download-section {
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .download-section.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .download-info {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .download-filename {
+            font-weight: bold;
+            color: var(--accent-success);
+            margin-bottom: 0.5rem;
+        }
+
+        .download-size {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Settings Modal */
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .settings-modal.show {
+            display: flex;
+        }
+
+        .settings-content {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .settings-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: var(--accent-error);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-group {
+            margin-bottom: 2rem;
+        }
+
+        .settings-group-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--accent-primary);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-select, .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-primary);
+        }
+
+        .quality-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .quality-option {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: float-quality 4s ease-in-out infinite;
+        }
+
+        .quality-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 107, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .quality-option:hover::before {
+            left: 100%;
+        }
+
+        .quality-option:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.2);
+            animation: none;
+        }
+
+        .quality-option.selected {
+            border-color: var(--accent-primary);
+            background: rgba(255, 107, 107, 0.1);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            animation: pulse-selected 2s infinite;
+        }
+
+        @keyframes float-quality {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-2px);
+            }
+        }
+
+        @keyframes pulse-selected {
+            0% {
+                box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            }
+            50% {
+                box-shadow: 0 8px 30px rgba(255, 107, 107, 0.5);
+            }
+            100% {
+                box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            }
+        }
+
+        .quality-name {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .quality-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: var(--accent-primary);
+            animation: spin 1s ease-in-out infinite;
+            position: relative;
+        }
+
+        .loading::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border: 3px solid transparent;
+            border-top-color: var(--accent-secondary);
+            border-radius: 50%;
+            animation: spin 0.8s ease-in-out infinite reverse;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .url-input-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .quality-options {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-success {
+            color: var(--accent-success);
+        }
+
+        .text-error {
+            color: var(--accent-error);
+        }
+
+        .text-warning {
+            color: var(--accent-warning);
+        }
+
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-3 { margin-bottom: 1.5rem; }
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-3 { margin-top: 1.5rem; }
+
+        /* PWA Styles */
+        .pwa-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .install-btn {
+            position: absolute;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .status-online {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--accent-success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            animation: slideInLeft 0.3s ease;
+        }
+
+        .status-offline {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--accent-error);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            animation: slideInLeft 0.3s ease;
+        }
+
+        .success-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent-success);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* PWA Install Button */
+        .install-btn {
+            animation: pulse-install 2s infinite;
+        }
+
+        @keyframes pulse-install {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+            }
+        }
+
+        /* Language Selector Modal */
+        .language-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .language-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .language-modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+        }
+
+        .language-modal.show .language-modal-content {
+            transform: scale(1);
+        }
+
+        .language-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .language-modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .language-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .language-close:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            transform: rotate(90deg);
+        }
+
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .language-option {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-tertiary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .language-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .language-option:hover::before {
+            left: 100%;
+        }
+
+        .language-option:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+        }
+
+        .language-option.selected {
+            border-color: var(--accent-primary);
+            background: var(--accent-primary);
+            color: white;
+            animation: pulse-selected 2s infinite;
+        }
+
+        .language-flag {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+            min-width: 24px;
+        }
+
+        .language-info {
+            flex: 1;
+        }
+
+        .language-name {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .language-native {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .language-search {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .language-search:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        .language-search::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* Human Verification Modal */
+        .verification-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .verification-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .verification-modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .verification-modal.show .verification-modal-content {
+            transform: scale(1);
+        }
+
+        .verification-modal-header {
+            padding: 2rem 2rem 1rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .verification-modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .verification-modal-title i {
+            color: var(--accent-primary);
+        }
+
+        .verification-modal-body {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .verification-text {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .recaptcha-container {
+            display: flex;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .verification-status {
+            background: var(--accent-success);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .verification-status i {
+            font-size: 1.2rem;
+        }
+
+        .verification-modal-footer {
+            padding: 1rem 2rem 2rem 2rem;
+            text-align: center;
+        }
+
+        .verification-modal-footer .btn {
+            min-width: 200px;
+        }
+
+        .verification-modal-footer .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Copyright Footer */
+        .copyright-footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 1rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-content p {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .footer-content p:first-child {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .footer-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .policy-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .policy-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .policy-btn i {
+            font-size: 0.9rem;
+        }
+
+        /* Policy Modal Styles */
+        .policy-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .policy-modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideInUp 0.3s ease;
+        }
+
+        .policy-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            border-radius: 15px 15px 0 0;
+        }
+
+        .policy-modal-header h2 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+        }
+
+        .policy-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .policy-close:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transform: rotate(90deg);
+        }
+
+        .policy-modal-body {
+            padding: 2rem;
+            color: var(--text-primary);
+        }
+
+        .policy-content h3 {
+            color: var(--accent-primary);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .policy-content h4 {
+            color: var(--text-primary);
+            margin: 1.5rem 0 0.5rem 0;
+            font-size: 1.1rem;
+        }
+
+        .policy-content ul {
+            margin: 0.5rem 0 1rem 1.5rem;
+        }
+
+        .policy-content li {
+            margin: 0.25rem 0;
+            line-height: 1.5;
+        }
+
+        .policy-content p {
+            margin: 1rem 0;
+            line-height: 1.6;
+        }
+
+        .policy-modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            background: var(--bg-tertiary);
+            border-radius: 0 0 15px 15px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-music"></i>
+            SimpleMP3 Converter
+        </div>
+        <div class="header-controls">
+            <!-- Butoanele au fost eliminate -->
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Main Card -->
+        <div class="main-card">
+            <h1 class="card-title">
+                <i class="fas fa-download"></i>
+                Video MP3 Converter
+            </h1>
+            <p class="card-subtitle">
+                Convert any video to high-quality MP3
+            </p>
+
+            <!-- Legal Disclaimer -->
+            <div class="legal-disclaimer">
+                <div class="disclaimer-content">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>⚠️ WARNING:</strong> This service is intended EXCLUSIVELY for converting files for which you own the rights or for materials with permissive licenses (e.g. Creative Commons). The user is solely responsible for uploaded or converted materials. If you receive a copyright infringement notice, we will cooperate according to our DMCA policy.
+                </div>
+            </div>
+
+            <!-- URL Input Section -->
+            <div class="url-section">
+                <div class="url-input-group">
+                    <input type="url" id="urlInput" class="url-input" 
+                           placeholder="Enter video URL here..." 
+                           autocomplete="off">
+                    <button id="convertBtn" class="btn btn-primary">
+                        <i class="fas fa-music"></i>
+                        Convert to MP3
+                    </button>
+                </div>
+                
+            </div>
+
+            <!-- Video Info Section - Hidden for simplified workflow -->
+            <div id="videoInfo" class="video-info" style="display: none;">
+                <div class="text-center">
+                    <img id="videoThumbnail" class="video-thumbnail" alt="Video thumbnail">
+                    <h3 id="videoTitle" class="video-title"></h3>
+                    <div id="videoDetails" class="video-details"></div>
+                </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div id="progressSection" class="progress-section">
+                <div class="progress-bar-container">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+                <div id="progressText" class="progress-text">Preparing...</div>
+                <div id="progressDetails" class="progress-details"></div>
+            </div>
+
+            <!-- Download Section -->
+            <div id="downloadSection" class="download-section">
+                <div class="download-info">
+                    <div id="downloadFilename" class="download-filename"></div>
+                    <div id="downloadSize" class="download-size"></div>
+                </div>
+                <!-- Download button removed - handled by main convert button -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="settings-modal">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2 class="settings-title">Complete Settings</h2>
+                <button id="closeSettings" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Audio Quality Settings -->
+            <div class="settings-group">
+                <h3 class="settings-group-title">Audio Quality</h3>
+                <div class="quality-options" id="qualityOptions">
+                    <div class="quality-option" data-quality="128kbps">
+                        <div class="quality-name">🚀 Fast</div>
+                        <div class="quality-description">128kbps - Small file</div>
+                    </div>
+                    <div class="quality-option selected" data-quality="192kbps">
+                        <div class="quality-name">⭐ Standard</div>
+                        <div class="quality-description">192kbps - Recommended</div>
+                    </div>
+                    <div class="quality-option" data-quality="256kbps">
+                        <div class="quality-name">💎 High Quality</div>
+                        <div class="quality-description">256kbps - Good quality</div>
+                    </div>
+                    <div class="quality-option" data-quality="320kbps">
+                        <div class="quality-name">👑 Maximum</div>
+                        <div class="quality-description">320kbps - Maximum quality</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audio Format Settings -->
+            <div class="settings-group">
+                <h3 class="settings-group-title">Audio Format</h3>
+                <div class="form-group">
+                    <label class="form-label">Output format:</label>
+                    <select id="audioFormat" class="form-select">
+                        <option value="mp3">MP3 - Universal compatibility</option>
+                        <option value="aac">AAC - High quality</option>
+                        <option value="flac">FLAC - Lossless</option>
+                        <option value="ogg">OGG - Open source</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Advanced Settings -->
+            <div class="settings-group">
+                <h3 class="settings-group-title">Advanced Settings</h3>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="normalizeAudio" class="checkbox" checked>
+                        <label for="normalizeAudio">Audio normalization (uniform volume)</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="autoCleanup" class="checkbox" checked>
+                        <label for="autoCleanup">Automatic cleanup of old files</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme Settings -->
+            <div class="settings-group">
+                <h3 class="settings-group-title">Theme</h3>
+                <div class="form-group">
+                    <label class="form-label">Application theme:</label>
+                    <select id="appTheme" class="form-select">
+                        <option value="dark">🌙 Dark</option>
+                        <option value="light">☀️ Light</option>
+                        <option value="auto">🔄 Auto</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="text-center mt-3">
+                <button id="saveSettings" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Language Selector Modal -->
+    <div class="language-modal" id="languageModal">
+        <div class="language-modal-content">
+            <div class="language-modal-header">
+                <div class="language-modal-title">
+                    <i class="fas fa-globe"></i>
+                    Select Language
+                </div>
+                <button class="language-close" id="languageClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <input type="text" class="language-search" id="languageSearch" placeholder="Search language...">
+            
+            <div class="language-grid" id="languageGrid">
+                <!-- Languages will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Butonul flotant a fost eliminat -->
+
+    <!-- Human Verification Modal -->
+    <div id="humanVerificationModal" class="verification-modal">
+        <div class="verification-modal-content">
+            <div class="verification-modal-header">
+                <h2 class="verification-modal-title">
+                    <i class="fas fa-shield-alt"></i>
+                    Human Verification Required
+                </h2>
+            </div>
+            <div class="verification-modal-body">
+                <p class="verification-text">
+                    To prevent abuse and ensure fair usage, please confirm that you are a human user.
+                    This is a one-time verification that will remain valid for your session.
+                </p>
+            </div>
+            <div class="verification-modal-footer">
+                <button id="verifyButton" class="btn btn-primary">
+                    <i class="fas fa-check"></i>
+                    Verify & Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer cu Copyright -->
+    <footer class="copyright-footer">
+        <div class="footer-content">
+            <p>© 2025 SimpleMP3 Converter. All Rights Reserved.</p>
+            <p>Proprietary Software - Unauthorized use prohibited.</p>
+                    <div class="footer-buttons">
+                        <button class="btn btn-secondary policy-btn" id="usagePolicyBtn">
+                            <i class="fas fa-file-contract"></i>
+                            Check Usage Policy
+                        </button>
+                    </div>
+        </div>
+    </footer>
+
+    <script>
+        class VideoConverterProfessional {
+            constructor() {
+                this.currentConversionId = null;
+                this.settings = {
+                    audio_quality: '192kbps',
+                    audio_format: 'mp3',
+                    bitrate: 192,
+                    normalize: true,
+                    auto_cleanup: true,
+                    theme: 'dark'
+                };
+                this.currentLanguage = 'en'; // Default language set to English
+                this.isHumanVerified = false; // Track human verification status
+                this.verificationAttempts = 0; // Track verification attempts
+                this.languages = this.initializeLanguages();
+                this.init();
+            }
+
+            init() {
+                this.loadSettings();
+                this.loadLanguage();
+                this.bindEvents();
+                this.setupTheme();
+                this.checkHumanVerification();
+                // Don't load platforms to avoid legal issues
+            }
+
+            bindEvents() {
+                // Single convert button that handles everything
+                document.getElementById('convertBtn').addEventListener('click', () => this.convertToMP3());
+                document.getElementById('urlInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.convertToMP3();
+                });
+
+                // Download
+                // Download button removed - handled by main convert button
+
+                // Butonul flotant a fost eliminat
+
+                // Human verification
+                document.getElementById('verifyButton').addEventListener('click', () => this.verifyHuman());
+
+                // Settings modal
+                document.getElementById('closeSettings').addEventListener('click', () => this.closeSettings());
+                document.getElementById('saveSettings').addEventListener('click', () => this.saveSettings());
+
+                // Quality options
+                document.querySelectorAll('.quality-option').forEach(option => {
+                    option.addEventListener('click', () => this.selectQuality(option));
+                });
+
+                // Theme and language options have been removed
+
+                // Settings modal click outside
+                document.getElementById('settingsModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'settingsModal') this.closeSettings();
+                });
+
+                // Policy button
+                document.getElementById('usagePolicyBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const button = e.target.closest('button');
+                    
+                    // Add loading state
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening...';
+                    button.disabled = true;
+                    
+                    // Open in new tab
+                    const newWindow = window.open('/legal-policies', '_blank');
+                    
+                    // Reset button after a short delay
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }, 1000);
+                    
+                    // Also reset on focus (when user returns to main window)
+                    const resetButton = () => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                        window.removeEventListener('focus', resetButton);
+                    };
+                    
+                    window.addEventListener('focus', resetButton);
+                });
+            }
+
+            initializeLanguages() {
+                return {
+                    'ro': { name: 'Română', native: 'Română', flag: '🇷🇴' },
+                    'en': { name: 'English', native: 'English', flag: '🇺🇸' },
+                    'es': { name: 'Español', native: 'Español', flag: '🇪🇸' },
+                    'fr': { name: 'Français', native: 'Français', flag: '🇫🇷' },
+                    'de': { name: 'Deutsch', native: 'Deutsch', flag: '🇩🇪' },
+                    'it': { name: 'Italiano', native: 'Italiano', flag: '🇮🇹' },
+                    'pt': { name: 'Português', native: 'Português', flag: '🇵🇹' },
+                    'ru': { name: 'Русский', native: 'Русский', flag: '🇷🇺' },
+                    'zh': { name: '中文', native: '中文', flag: '🇨🇳' },
+                    'ja': { name: '日本語', native: '日本語', flag: '🇯🇵' },
+                    'ko': { name: '한국어', native: '한국어', flag: '🇰🇷' },
+                    'ar': { name: 'العربية', native: 'العربية', flag: '🇸🇦' },
+                    'hi': { name: 'हिन्दी', native: 'हिन्दी', flag: '🇮🇳' },
+                    'tr': { name: 'Türkçe', native: 'Türkçe', flag: '🇹🇷' },
+                    'pl': { name: 'Polski', native: 'Polski', flag: '🇵🇱' },
+                    'nl': { name: 'Nederlands', native: 'Nederlands', flag: '🇳🇱' },
+                    'sv': { name: 'Svenska', native: 'Svenska', flag: '🇸🇪' },
+                    'no': { name: 'Norsk', native: 'Norsk', flag: '🇳🇴' },
+                    'da': { name: 'Dansk', native: 'Dansk', flag: '🇩🇰' },
+                    'fi': { name: 'Suomi', native: 'Suomi', flag: '🇫🇮' },
+                    'cs': { name: 'Čeština', native: 'Čeština', flag: '🇨🇿' },
+                    'sk': { name: 'Slovenčina', native: 'Slovenčina', flag: '🇸🇰' },
+                    'hu': { name: 'Magyar', native: 'Magyar', flag: '🇭🇺' },
+                    'bg': { name: 'Български', native: 'Български', flag: '🇧🇬' },
+                    'hr': { name: 'Hrvatski', native: 'Hrvatski', flag: '🇭🇷' },
+                    'sl': { name: 'Slovenščina', native: 'Slovenščina', flag: '🇸🇮' },
+                    'et': { name: 'Eesti', native: 'Eesti', flag: '🇪🇪' },
+                    'lv': { name: 'Latviešu', native: 'Latviešu', flag: '🇱🇻' },
+                    'lt': { name: 'Lietuvių', native: 'Lietuvių', flag: '🇱🇹' },
+                    'el': { name: 'Ελληνικά', native: 'Ελληνικά', flag: '🇬🇷' },
+                    'he': { name: 'עברית', native: 'עברית', flag: '🇮🇱' },
+                    'th': { name: 'ไทย', native: 'ไทย', flag: '🇹🇭' },
+                    'vi': { name: 'Tiếng Việt', native: 'Tiếng Việt', flag: '🇻🇳' },
+                    'id': { name: 'Bahasa Indonesia', native: 'Bahasa Indonesia', flag: '🇮🇩' },
+                    'ms': { name: 'Bahasa Melayu', native: 'Bahasa Melayu', flag: '🇲🇾' },
+                    'tl': { name: 'Filipino', native: 'Filipino', flag: '🇵🇭' },
+                    'uk': { name: 'Українська', native: 'Українська', flag: '🇺🇦' },
+                    'be': { name: 'Беларуская', native: 'Беларуская', flag: '🇧🇾' },
+                    'ka': { name: 'ქართული', native: 'ქართული', flag: '🇬🇪' },
+                    'hy': { name: 'Հայերեն', native: 'Հայերեն', flag: '🇦🇲' },
+                    'az': { name: 'Azərbaycan', native: 'Azərbaycan', flag: '🇦🇿' },
+                    'kk': { name: 'Қазақша', native: 'Қазақша', flag: '🇰🇿' },
+                    'ky': { name: 'Кыргызча', native: 'Кыргызча', flag: '🇰🇬' },
+                    'uz': { name: 'O\'zbek', native: 'O\'zbek', flag: '🇺🇿' },
+                    'tg': { name: 'Тоҷикӣ', native: 'Тоҷикӣ', flag: '🇹🇯' },
+                    'mn': { name: 'Монгол', native: 'Монгол', flag: '🇲🇳' },
+                    'my': { name: 'မြန်မာ', native: 'မြန်မာ', flag: '🇲🇲' },
+                    'km': { name: 'ខ្មែរ', native: 'ខ្មែរ', flag: '🇰🇭' },
+                    'lo': { name: 'ລາວ', native: 'ລາວ', flag: '🇱🇦' },
+                    'si': { name: 'සිංහල', native: 'සිංහල', flag: '🇱🇰' },
+                    'ne': { name: 'नेपाली', native: 'नेपाली', flag: '🇳🇵' },
+                    'bn': { name: 'বাংলা', native: 'বাংলা', flag: '🇧🇩' },
+                    'ur': { name: 'اردو', native: 'اردو', flag: '🇵🇰' },
+                    'fa': { name: 'فارسی', native: 'فارسی', flag: '🇮🇷' },
+                    'ps': { name: 'پښتو', native: 'پښتو', flag: '🇦🇫' },
+                    'ku': { name: 'Kurdî', native: 'Kurdî', flag: '🇮🇶' },
+                    'sw': { name: 'Kiswahili', native: 'Kiswahili', flag: '🇰🇪' },
+                    'am': { name: 'አማርኛ', native: 'አማርኛ', flag: '🇪🇹' },
+                    'yo': { name: 'Yorùbá', native: 'Yorùbá', flag: '🇳🇬' },
+                    'ig': { name: 'Igbo', native: 'Igbo', flag: '🇳🇬' },
+                    'ha': { name: 'Hausa', native: 'Hausa', flag: '🇳🇬' },
+                    'zu': { name: 'IsiZulu', native: 'IsiZulu', flag: '🇿🇦' },
+                    'af': { name: 'Afrikaans', native: 'Afrikaans', flag: '🇿🇦' },
+                    'xh': { name: 'IsiXhosa', native: 'IsiXhosa', flag: '🇿🇦' },
+                    'st': { name: 'Sesotho', native: 'Sesotho', flag: '🇿🇦' },
+                    'tn': { name: 'Setswana', native: 'Setswana', flag: '🇿🇦' },
+                    'ss': { name: 'SiSwati', native: 'SiSwati', flag: '🇸🇿' },
+                    've': { name: 'Tshivenḓa', native: 'Tshivenḓa', flag: '🇿🇦' },
+                    'ts': { name: 'Xitsonga', native: 'Xitsonga', flag: '🇿🇦' },
+                    'nr': { name: 'IsiNdebele', native: 'IsiNdebele', flag: '🇿🇦' },
+                    'nso': { name: 'Sesotho sa Leboa', native: 'Sesotho sa Leboa', flag: '🇿🇦' }
+                };
+            }
+
+            toggleLanguageModal() {
+                console.log('toggleLanguageModal called');
+                const modal = document.getElementById('languageModal');
+                console.log('Modal element:', modal);
+                modal.classList.toggle('show');
+                
+                if (modal.classList.contains('show')) {
+                    console.log('Opening language modal, populating languages');
+                    this.populateLanguages();
+                } else {
+                    console.log('Closing language modal');
+                }
+            }
+
+            populateLanguages() {
+                const grid = document.getElementById('languageGrid');
+                grid.innerHTML = '';
+
+                Object.entries(this.languages).forEach(([code, lang]) => {
+                    const option = document.createElement('div');
+                    option.className = `language-option ${code === this.currentLanguage ? 'selected' : ''}`;
+                    option.dataset.code = code;
+                    
+                    option.innerHTML = `
+                        <div class="language-flag">${lang.flag}</div>
+                        <div class="language-info">
+                            <div class="language-name">${lang.name}</div>
+                            <div class="language-native">${lang.native}</div>
+                        </div>
+                    `;
+                    
+                    option.addEventListener('click', () => this.selectLanguage(code));
+                    grid.appendChild(option);
+                });
+            }
+
+            selectLanguage(code) {
+                this.currentLanguage = code;
+                this.updateLanguageDisplay();
+                this.toggleLanguageModal();
+                this.saveLanguage();
+                this.translateInterface();
+            }
+
+            updateLanguageDisplay() {
+                const languageCode = document.querySelector('.language-code');
+                if (languageCode) {
+                    languageCode.textContent = this.currentLanguage.toUpperCase();
+                } else {
+                    // Language button no longer exists, just update settings
+                    console.log('Language updated to:', this.currentLanguage);
+                }
+            }
+
+            filterLanguages(searchTerm) {
+                const options = document.querySelectorAll('.language-option');
+                const term = searchTerm.toLowerCase();
+                
+                options.forEach(option => {
+                    const code = option.dataset.code;
+                    const lang = this.languages[code];
+                    const matches = lang.name.toLowerCase().includes(term) || 
+                                 lang.native.toLowerCase().includes(term);
+                    
+                    option.style.display = matches ? 'flex' : 'none';
+                });
+            }
+
+            saveLanguage() {
+                localStorage.setItem('youtube_converter_language', this.currentLanguage);
+            }
+
+            loadLanguage() {
+                const saved = localStorage.getItem('youtube_converter_language');
+                if (saved && this.languages[saved]) {
+                    this.currentLanguage = saved;
+                    this.updateLanguageDisplay();
+                    this.translateInterface();
+                }
+            }
+
+            translateInterface() {
+                // This would contain all the translations
+                // For now, we'll just update the language code display
+                this.updateLanguageDisplay();
+            }
+
+            showUsagePolicy() {
+                window.open('/legal-policies#usage-policy', '_blank');
+            }
+
+            showPrivacyPolicy() {
+                window.open('/legal-policies#privacy-policy', '_blank');
+            }
+
+            showLegalDisclaimer() {
+                window.open('/legal-policies#legal-disclaimer', '_blank');
+            }
+
+
+            showVideoInfo(videoInfo) {
+                console.log('showVideoInfo called with:', videoInfo);
+                const videoInfoSection = document.getElementById('videoInfo');
+                const thumbnail = document.getElementById('videoThumbnail');
+                const title = document.getElementById('videoTitle');
+                const details = document.getElementById('videoDetails');
+
+                console.log('Elements found:', {videoInfoSection, thumbnail, title, details});
+
+                if (!videoInfoSection) {
+                    console.error('videoInfoSection not found!');
+                    return;
+                }
+
+                if (videoInfo.thumbnail && thumbnail) {
+                    thumbnail.src = videoInfo.thumbnail;
+                    console.log('Thumbnail set to:', videoInfo.thumbnail);
+                }
+                if (videoInfo.title && title) {
+                    title.textContent = videoInfo.title;
+                    console.log('Title set to:', videoInfo.title);
+                }
+                
+                // Don't display platform information to avoid legal issues
+                
+                if (details) {
+                    details.innerHTML = `
+                    <div class="video-detail">
+                        <i class="fas fa-user"></i>
+                        <strong>Channel:</strong> ${videoInfo.uploader}
+                    </div>
+                    <div class="video-detail">
+                        <i class="fas fa-clock"></i>
+                        <strong>Duration:</strong> ${this.formatDuration(videoInfo.duration)}
+                    </div>
+                    <div class="video-detail">
+                        <i class="fas fa-eye"></i>
+                        <strong>Views:</strong> ${this.formatNumber(videoInfo.view_count)}
+                    </div>
+                    <div class="video-detail">
+                        <i class="fas fa-calendar"></i>
+                        <strong>Date:</strong> ${this.formatDate(videoInfo.upload_date)}
+                    </div>
+                `;
+                }
+
+                console.log('Adding show class to videoInfoSection');
+                videoInfoSection.classList.add('show');
+                console.log('Video info section should now be visible');
+            }
+
+            async startConversion() {
+                const url = document.getElementById('urlInput').value.trim();
+                if (!url) return;
+
+                console.log('Starting conversion with URL:', url);
+                console.log('User verified status:', this.isHumanVerified);
+                console.log('Session storage:', sessionStorage.getItem('humanVerified'));
+
+                // Set button to processing state
+                this.setButtonToProcessing();
+                this.hideAllSections();
+                this.showProgressSection();
+
+                try {
+                    const response = await fetch('/api/convert', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            url, 
+                            settings: this.settings 
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.currentConversionId = data.conversion_id;
+                        this.startProgressPolling();
+                    } else {
+                        this.showError(data.error || 'Conversion failed');
+                        this.setButtonToConvert(); // Reset button on error
+                    }
+                } catch (error) {
+                    console.error('Error starting conversion:', error);
+                    this.showError(`Error starting conversion: ${error.message}`);
+                    this.setButtonToConvert(); // Reset button on error
+                }
+            }
+
+            startProgressPolling() {
+                console.log('Starting progress polling for conversion:', this.currentConversionId);
+                
+                // Clear any existing polling
+                if (this.pollInterval) {
+                    clearInterval(this.pollInterval);
+                }
+                
+                this.pollInterval = setInterval(async () => {
+                    try {
+                        console.log('Checking progress for:', this.currentConversionId);
+                        const response = await fetch(`/api/status/${this.currentConversionId}`);
+                        console.log('Response status:', response.status);
+                        
+                        if (!response.ok) {
+                            if (response.status === 429) {
+                                console.log('Rate limited, waiting longer...');
+                                // Wait longer before next request
+                                setTimeout(() => {
+                                    // Continue polling after delay
+                                }, 10000);
+                                return;
+                            }
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        }
+                        
+                        const data = await response.json();
+                        console.log('Progress data:', data);
+
+                        if (data.success) {
+                            this.updateProgress(data);
+                            
+                            if (data.status === 'completed') {
+                                console.log('Conversion completed!');
+                                clearInterval(this.pollInterval);
+                                this.pollInterval = null;
+                                this.showDownloadSection(data); // This will set button to download state
+                            } else if (data.status === 'error') {
+                                console.log('Conversion error:', data.error);
+                                clearInterval(this.pollInterval);
+                                this.pollInterval = null;
+                                this.showError(data.error);
+                                this.setButtonToConvert(); // Reset button to convert state
+                            }
+                        } else {
+                            console.log('Progress check failed:', data.error);
+                            clearInterval(pollInterval);
+                            this.showError(data.error || 'Error checking progress');
+                            this.setButtonToConvert(); // Reset button to convert state
+                        }
+                    } catch (error) {
+                        console.error('Progress polling error:', error);
+                        clearInterval(pollInterval);
+                        this.showError(`Error checking progress: ${error.message}`);
+                        this.setButtonToConvert(); // Reset button to convert state
+                    }
+                }, 5000); // Increased to 5000ms to avoid rate limiting
+            }
+
+            updateProgress(data) {
+                const progressBar = document.getElementById('progressBar');
+                const progressText = document.getElementById('progressText');
+                const progressDetails = document.getElementById('progressDetails');
+
+                const progress = Math.round(data.progress || 0);
+                progressBar.style.width = `${progress}%`;
+
+                if (data.status === 'starting') {
+                    progressText.textContent = 'Preparing conversion...';
+                } else if (data.status === 'downloading') {
+                    progressText.textContent = `Downloading: ${progress}%`;
+                    if (data.downloaded_bytes && data.total_bytes) {
+                        const downloaded = this.formatBytes(data.downloaded_bytes);
+                        const total = this.formatBytes(data.total_bytes);
+                        progressDetails.textContent = `${downloaded} / ${total}`;
+                    }
+                } else if (data.status === 'converting') {
+                    progressText.textContent = `Converting: ${progress}%`;
+                }
+            }
+
+            showProgressSection() {
+                document.getElementById('progressSection').classList.add('show');
+            }
+
+            showDownloadSection(data) {
+                console.log('showDownloadSection called with data:', data);
+                
+                // Complete progress bar animation
+                this.completeProgressAnimation();
+                
+                const downloadSection = document.getElementById('downloadSection');
+                const filename = document.getElementById('downloadFilename');
+                const size = document.getElementById('downloadSize');
+
+                filename.textContent = data.filename || 'MP3 File';
+                size.textContent = data.file_size ? `Size: ${this.formatBytes(data.file_size)}` : '';
+
+                // Show video preview if available
+                if (data.thumbnail_url && data.video_info) {
+                    this.showVideoPreview(data.thumbnail_url, data.video_info);
+                }
+
+                downloadSection.classList.add('show');
+                
+                // Change convert button to download button
+                console.log('Setting button to download with data:', data);
+                this.setButtonToDownload(data);
+                
+                // Hide progress section
+                document.getElementById('progressSection').classList.remove('show');
+            }
+
+            // Button state management functions
+            setButtonToConvert() {
+                const convertBtn = document.getElementById('convertBtn');
+                convertBtn.innerHTML = '<i class="fas fa-music"></i> Convert to MP3';
+                convertBtn.className = 'btn btn-primary';
+                convertBtn.style.background = '#007bff';
+                convertBtn.style.color = 'white';
+                convertBtn.disabled = false;
+                convertBtn.onclick = () => this.convertToMP3();
+                console.log('Button set to: Convert to MP3');
+            }
+
+            setButtonToProcessing() {
+                const convertBtn = document.getElementById('convertBtn');
+                convertBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                convertBtn.className = 'btn btn-warning';
+                convertBtn.style.background = '#ffc107';
+                convertBtn.style.color = '#212529';
+                convertBtn.disabled = true;
+                convertBtn.onclick = null;
+                console.log('Button set to: Processing...');
+                
+                // Start progress bar animation
+                this.startProgressAnimation();
+            }
+
+            setButtonToDownload(data) {
+                const convertBtn = document.getElementById('convertBtn');
+                convertBtn.innerHTML = '<i class="fas fa-download"></i> Download MP3';
+                convertBtn.className = 'btn btn-success';
+                convertBtn.style.background = '#28a745';
+                convertBtn.style.color = 'white';
+                convertBtn.disabled = false;
+                
+                // Remove any existing event listeners
+                const newBtn = convertBtn.cloneNode(true);
+                convertBtn.parentNode.replaceChild(newBtn, convertBtn);
+                
+                // Add new event listener
+                newBtn.addEventListener('click', () => {
+                    console.log('Download button clicked!');
+                    this.startDownload(data);
+                });
+                
+                console.log('Button set to: Download MP3');
+                console.log('Download data available:', data);
+                console.log('Download URL:', data?.download_url);
+            }
+
+            setButtonToDownloading() {
+                const convertBtn = document.getElementById('convertBtn');
+                convertBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading...';
+                convertBtn.className = 'btn btn-info';
+                convertBtn.style.background = '#17a2b8';
+                convertBtn.style.color = 'white';
+                convertBtn.disabled = true;
+                convertBtn.onclick = null;
+                console.log('Button set to: Downloading...');
+            }
+
+            startDownload(data) {
+                try {
+                    console.log('Starting download...');
+                    console.log('Download data:', data);
+                    console.log('Download URL:', data.download_url);
+                    console.log('Filename:', data.filename);
+                    
+                    if (!data.download_url) {
+                        throw new Error('Download URL not available');
+                    }
+                    
+                    this.setButtonToDownloading();
+                    
+                    // Create a temporary link element for download
+                    const link = document.createElement('a');
+                    link.href = data.download_url;
+                    link.download = data.filename || 'download.mp3';
+                    console.log('Created download link:', link.href);
+                    
+                    document.body.appendChild(link);
+                    console.log('Clicking download link...');
+                    link.click();
+                    document.body.removeChild(link);
+                    console.log('Download link clicked and removed');
+                    
+                    // Reset application immediately after download starts
+                    setTimeout(() => {
+                        console.log('Resetting application after download started');
+                        this.setButtonToConvert();
+                        this.resetDownloadSection();
+                    }, 2000); // Reset after 2 seconds
+                } catch (error) {
+                    console.error('Error starting download:', error);
+                    this.showError(`Download error: ${error.message}`);
+                    this.setButtonToConvert();
+                }
+            }
+
+            startProgressAnimation() {
+                console.log('Starting progress animation...');
+                const progressFill = document.getElementById('progressFill');
+                const status = document.getElementById('status');
+                
+                if (progressFill) {
+                    // Reset progress bar
+                    progressFill.style.width = '0%';
+                    progressFill.style.transition = 'width 0.3s ease-in-out';
+                    
+                    // Start gradual animation
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += Math.random() * 15; // Random increment between 0-15%
+                        if (progress > 85) progress = 85; // Don't go over 85% until real progress
+                        
+                        progressFill.style.width = progress + '%';
+                        
+                        // Update status text
+                        if (status) {
+                            if (progress < 20) {
+                                status.textContent = 'Initializing...';
+                            } else if (progress < 40) {
+                                status.textContent = 'Connecting to server...';
+                            } else if (progress < 60) {
+                                status.textContent = 'Downloading video...';
+                            } else if (progress < 80) {
+                                status.textContent = 'Processing audio...';
+                            } else {
+                                status.textContent = 'Finalizing...';
+                            }
+                        }
+                        
+                        // Stop animation when conversion is complete (check via API)
+                        if (this.currentConversionId) {
+                            // Check conversion status via API
+                            fetch(`/api/status/${this.currentConversionId}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success && data.status === 'completed') {
+                                        clearInterval(interval);
+                                        progressFill.style.width = '100%';
+                                        if (status) {
+                                            status.textContent = 'Conversion completed!';
+                                        }
+                                    }
+                                })
+                                .catch(error => {
+                                    console.log('Status check error:', error);
+                                });
+                        }
+                    }, 500); // Update every 500ms
+                    
+                    // Store interval ID for cleanup
+                    this.progressInterval = interval;
+                }
+            }
+
+            completeProgressAnimation() {
+                console.log('Completing progress animation...');
+                
+                // Clear progress animation
+                if (this.progressInterval) {
+                    clearInterval(this.progressInterval);
+                    this.progressInterval = null;
+                }
+                
+                // Clear progress polling
+                if (this.pollInterval) {
+                    clearInterval(this.pollInterval);
+                    this.pollInterval = null;
+                }
+                
+                // Complete progress bar
+                const progressFill = document.getElementById('progressFill');
+                const status = document.getElementById('status');
+                
+                if (progressFill) {
+                    progressFill.style.width = '100%';
+                    progressFill.style.transition = 'width 0.5s ease-in-out';
+                }
+                
+                if (status) {
+                    status.textContent = 'Conversion completed!';
+                }
+            }
+
+            resetDownloadSection() {
+                console.log('Resetting download section...');
+                
+                // Clear progress animation
+                if (this.progressInterval) {
+                    clearInterval(this.progressInterval);
+                    this.progressInterval = null;
+                }
+                
+                // Clear progress polling
+                if (this.pollInterval) {
+                    clearInterval(this.pollInterval);
+                    this.pollInterval = null;
+                }
+                
+                // Hide all sections
+                const downloadSection = document.getElementById('downloadSection');
+                const progressSection = document.getElementById('progressSection');
+                const videoInfoSection = document.getElementById('videoInfo');
+                
+                if (downloadSection) {
+                    downloadSection.classList.remove('show');
+                }
+                if (progressSection) {
+                    progressSection.classList.remove('show');
+                }
+                if (videoInfoSection) {
+                    videoInfoSection.classList.remove('show');
+                }
+                
+                // Reset form
+                const urlInput = document.getElementById('urlInput');
+                if (urlInput) {
+                    urlInput.value = '';
+                    urlInput.focus(); // Focus back to input
+                }
+                
+                // Clear current conversion
+                this.currentConversionId = null;
+                
+                // Reset progress bar
+                const progressFill = document.getElementById('progressFill');
+                if (progressFill) {
+                    progressFill.style.width = '0%';
+                    progressFill.style.transition = 'width 0.3s ease-in-out';
+                }
+                
+                // Reset status text
+                const status = document.getElementById('status');
+                if (status) {
+                    status.textContent = 'Ready to convert';
+                }
+                
+                // Clear download info
+                const downloadFilename = document.getElementById('downloadFilename');
+                const downloadSize = document.getElementById('downloadSize');
+                if (downloadFilename) {
+                    downloadFilename.textContent = '';
+                }
+                if (downloadSize) {
+                    downloadSize.textContent = '';
+                }
+                
+                // Clear video preview
+                const videoPreview = document.getElementById('videoPreview');
+                if (videoPreview) {
+                    videoPreview.innerHTML = '';
+                }
+                
+                console.log('Download section reset complete');
+            }
+
+            showVideoPreview(thumbnailUrl, videoInfo) {
+                // Create or update video preview section
+                let previewSection = document.getElementById('videoPreview');
+                if (!previewSection) {
+                    previewSection = document.createElement('div');
+                    previewSection.id = 'videoPreview';
+                    previewSection.className = 'video-preview';
+                    previewSection.innerHTML = `
+                        <div class="preview-content">
+                            <div class="preview-thumbnail">
+                                <img id="previewThumbnail" src="" alt="Video thumbnail">
+                            </div>
+                            <div class="preview-info">
+                                <h3 id="previewTitle"></h3>
+                                <div class="preview-details">
+                                    <div class="preview-detail">
+                                        <i class="fas fa-user"></i>
+                                        <span id="previewUploader"></span>
+                                    </div>
+                                    <div class="preview-detail">
+                                        <i class="fas fa-clock"></i>
+                                        <span id="previewDuration"></span>
+                                    </div>
+                                    <div class="preview-detail">
+                                        <i class="fas fa-eye"></i>
+                                        <span id="previewViews"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Insert before download section
+                    const downloadSection = document.getElementById('downloadSection');
+                    downloadSection.parentNode.insertBefore(previewSection, downloadSection);
+                }
+
+                // Update preview content
+                const thumbnail = document.getElementById('previewThumbnail');
+                const title = document.getElementById('previewTitle');
+                const uploader = document.getElementById('previewUploader');
+                const duration = document.getElementById('previewDuration');
+                const views = document.getElementById('previewViews');
+
+                if (thumbnail && thumbnailUrl) {
+                    thumbnail.src = thumbnailUrl;
+                    thumbnail.onerror = () => {
+                        console.log('Thumbnail failed to load:', thumbnailUrl);
+                        thumbnail.style.display = 'none';
+                    };
+                }
+                if (title) title.textContent = videoInfo.title || 'Unknown Title';
+                if (uploader) uploader.textContent = videoInfo.uploader || 'Unknown Uploader';
+                if (duration) duration.textContent = this.formatDuration(videoInfo.duration || 0);
+                if (views) views.textContent = this.formatNumber(videoInfo.view_count || 0);
+
+                previewSection.classList.add('show');
+            }
+
+            downloadFile() {
+                if (this.currentConversionId) {
+                    // Create a temporary link element for download
+                    const link = document.createElement('a');
+                    link.href = `/api/download/${this.currentConversionId}`;
+                    link.download = 'download.mp3';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            }
+
+            resetConvertButton() {
+                // Use the new button state management
+                this.setButtonToConvert();
+                
+                // Reset progress bar
+                const progressFill = document.getElementById('progressFill');
+                if (progressFill) {
+                    progressFill.style.width = '0%';
+                }
+                
+                // Reset status text
+                const status = document.getElementById('status');
+                if (status) {
+                    status.textContent = 'Ready to convert';
+                }
+                
+                // Hide download section
+                const downloadSection = document.getElementById('downloadSection');
+                if (downloadSection) {
+                    downloadSection.classList.remove('show');
+                }
+            }
+
+            // openFloatingSettings function has been removed
+
+            openSettings() {
+                document.getElementById('settingsModal').classList.add('show');
+                this.loadCurrentSettings();
+            }
+
+            closeSettings() {
+                document.getElementById('settingsModal').classList.remove('show');
+            }
+
+            loadCurrentSettings() {
+                // Load current settings into form
+                document.querySelector(`[data-quality="${this.settings.audio_quality}"]`).classList.add('selected');
+                document.getElementById('audioFormat').value = this.settings.audio_format;
+                document.getElementById('normalizeAudio').checked = this.settings.normalize;
+                document.getElementById('autoCleanup').checked = this.settings.auto_cleanup;
+                document.getElementById('appTheme').value = this.settings.theme;
+            }
+
+            selectQuality(option) {
+                document.querySelectorAll('.quality-option').forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+            }
+
+            // Theme and language functions have been removed
+
+            async saveSettings() {
+                const selectedQuality = document.querySelector('.quality-option.selected').dataset.quality;
+                const audioFormat = document.getElementById('audioFormat').value;
+                const normalize = document.getElementById('normalizeAudio').checked;
+                const autoCleanup = document.getElementById('autoCleanup').checked;
+                const theme = document.getElementById('appTheme').value;
+
+                this.settings = {
+                    ...this.settings,
+                    audio_quality: selectedQuality,
+                    audio_format: audioFormat,
+                    bitrate: parseInt(selectedQuality),
+                    normalize: normalize,
+                    auto_cleanup: autoCleanup,
+                    theme: theme
+                };
+
+                try {
+                    await fetch('/api/settings', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ settings: this.settings })
+                    });
+
+                    this.saveSettingsToStorage();
+                    this.closeSettings();
+                    this.showSuccess('Settings have been saved');
+                } catch (error) {
+                    this.showError('Error saving settings');
+                }
+            }
+
+            loadSettings() {
+                const saved = localStorage.getItem('youtubeConverterSettings');
+                if (saved) {
+                    this.settings = { ...this.settings, ...JSON.parse(saved) };
+                }
+            }
+
+            saveSettingsToStorage() {
+                localStorage.setItem('youtubeConverterSettings', JSON.stringify(this.settings));
+            }
+
+            toggleTheme() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                this.setTheme(newTheme);
+            }
+
+            setTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                // Theme toggle button no longer exists, just set theme
+                this.settings.theme = theme;
+                this.saveSettingsToStorage();
+            }
+
+            setupTheme() {
+                const savedTheme = this.settings.theme;
+                if (savedTheme) {
+                    this.setTheme(savedTheme);
+                }
+            }
+
+
+            // Platform functions removed to avoid legal issues
+
+            // Animation functions removed
+
+
+            setLoading(buttonId, loading) {
+                const button = document.getElementById(buttonId);
+                if (loading) {
+                    button.disabled = true;
+                    button.setAttribute('data-original-text', button.innerHTML);
+                    button.innerHTML = '<div class="loading"></div> Processing...';
+                } else {
+                    button.disabled = false;
+                    const originalText = button.getAttribute('data-original-text');
+                    if (originalText) {
+                        button.innerHTML = originalText;
+                        button.removeAttribute('data-original-text');
+                    } else {
+                        // Default text for conversion button
+                        if (buttonId === 'convertBtn') {
+                            button.innerHTML = '<i class="fas fa-music"></i> Convert to MP3';
+                        }
+                    }
+                }
+            }
+
+            hideAllSections() {
+                document.getElementById('videoInfo').classList.remove('show');
+                document.getElementById('progressSection').classList.remove('show');
+                // Don't hide downloadSection here, just the others
+            }
+
+            showError(message) {
+                alert(`❌ ${message}`);
+            }
+
+            showSuccess(message) {
+                alert(`✅ ${message}`);
+            }
+
+            formatDuration(seconds) {
+                if (!seconds) return 'Necunoscut';
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                
+                if (hours > 0) {
+                    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                } else {
+                    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+                }
+            }
+
+            formatNumber(num) {
+                if (!num) return 'Necunoscut';
+                return num.toLocaleString();
+            }
+
+            formatDate(dateStr) {
+                if (!dateStr) return 'Necunoscut';
+                const date = new Date(dateStr.substring(0, 4), dateStr.substring(4, 6) - 1, dateStr.substring(6, 8));
+                return date.toLocaleDateString('ro-RO');
+            }
+
+            formatBytes(bytes) {
+                if (!bytes) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Human Verification Functions
+            checkHumanVerification() {
+                // Check if user is already verified
+                const isVerified = sessionStorage.getItem('humanVerified') === 'true';
+                const verificationTime = sessionStorage.getItem('verificationTime');
+                const currentTime = Date.now();
+                
+                console.log('Human verification check:', isVerified);
+                console.log('Session storage humanVerified:', sessionStorage.getItem('humanVerified'));
+                console.log('Verification time:', verificationTime);
+                console.log('Current time:', currentTime);
+                console.log('Local isHumanVerified:', this.isHumanVerified);
+                
+                // Check if verification is still valid (24 hours)
+                if (isVerified && verificationTime) {
+                    const timeDiff = currentTime - parseInt(verificationTime);
+                    const hoursDiff = timeDiff / (1000 * 60 * 60);
+                    
+                    if (hoursDiff < 24) {
+                        this.isHumanVerified = true;
+                        console.log('User already verified (valid for', hoursDiff.toFixed(1), 'hours)');
+                        return;
+                    } else {
+                        console.log('Verification expired, clearing session');
+                        sessionStorage.removeItem('humanVerified');
+                        sessionStorage.removeItem('verificationTime');
+                    }
+                }
+                
+                // Show verification modal
+                console.log('User not verified or verification expired, showing modal');
+                this.showVerificationModal();
+            }
+
+            showVerificationModal() {
+                const modal = document.getElementById('humanVerificationModal');
+                modal.classList.add('show');
+                
+                console.log('Human verification modal shown');
+            }
+
+
+            async verifyHuman() {
+                try {
+                    console.log('Human verification requested...');
+                    
+                    // Send verification to backend
+                    const response = await fetch('/api/verify-human', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            verified: true
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Mark as verified locally
+                        this.isHumanVerified = true;
+                        sessionStorage.setItem('humanVerified', 'true');
+                        sessionStorage.setItem('verificationTime', Date.now().toString());
+                        
+                        console.log('Human verification successful');
+                        
+                        // Close modal immediately
+                        this.closeVerificationModal();
+                    } else {
+                        console.error('Verification failed:', data.error);
+                        this.showError(data.error || 'Verification failed. Please try again.');
+                    }
+                    
+                } catch (error) {
+                    console.error('Verification error:', error);
+                    this.showError(`Verification error: ${error.message}`);
+                }
+            }
+
+            closeVerificationModal() {
+                const modal = document.getElementById('humanVerificationModal');
+                modal.classList.remove('show');
+            }
+
+            // Override convertToMP3 to check verification first
+            async convertToMP3() {
+                try {
+                    const url = document.getElementById('urlInput').value.trim();
+                    if (!url) {
+                        this.showError('Enter a valid URL');
+                        return;
+                    }
+                    
+                    // Check both local and session storage
+                    const localVerified = this.isHumanVerified;
+                    const sessionVerified = sessionStorage.getItem('humanVerified') === 'true';
+                    
+                    if (!localVerified && !sessionVerified) {
+                        console.log('User not verified, showing verification modal');
+                        this.showVerificationModal();
+                        return;
+                    }
+                    
+                    // Proceed with normal conversion
+                    await this.startConversion();
+                } catch (error) {
+                    console.error('Error in convertToMP3:', error);
+                    this.showError('An error occurred during conversion');
+                    this.setButtonToConvert();
+                }
+            }
+        }
+
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🎵 Initializing SimpleMP3 Converter...');
+            try {
+                window.converterApp = new VideoConverterProfessional();
+                console.log('✅ Application initialized successfully!');
+                initializePWA();
+            } catch (error) {
+                console.error('❌ Initialization error:', error);
+                alert('Application initialization error: ' + error.message);
+            }
+        });
+
+        // PWA Initialization
+        function initializePWA() {
+            // Register Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registered:', registration);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    showUpdateNotification();
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('❌ Service Worker registration failed:', error);
+                    });
+            }
+
+            // Handle PWA install prompt
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                console.log('📱 PWA install prompt triggered');
+                e.preventDefault();
+                deferredPrompt = e;
+                showInstallButton();
+            });
+
+            // Handle PWA installed
+            window.addEventListener('appinstalled', () => {
+                console.log('🎉 PWA installed successfully');
+                hideInstallButton();
+                showSuccessMessage('Application installed successfully!');
+            });
+
+            // Handle online/offline status
+            window.addEventListener('online', () => {
+                console.log('🌐 App is online');
+                showOnlineStatus();
+            });
+
+            window.addEventListener('offline', () => {
+                console.log('📴 App is offline');
+                showOfflineStatus();
+            });
+
+            // Handle visibility change (app focus/blur)
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    console.log('👁️ App is hidden');
+                } else {
+                    console.log('👁️ App is visible');
+                    // Refresh data when app becomes visible
+                    if (window.converterApp) {
+                    }
+                }
+            });
+        }
+
+        // PWA Helper Functions
+        function showUpdateNotification() {
+            const notification = document.createElement('div');
+            notification.className = 'pwa-notification';
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Update available!</span>
+                    <button onclick="updateApp()" class="btn btn-primary">Update</button>
+                </div>
+            `;
+            document.body.appendChild(notification);
+        }
+
+        function showInstallButton() {
+            const installBtn = document.createElement('button');
+            installBtn.id = 'installBtn';
+            installBtn.className = 'btn btn-primary install-btn';
+            installBtn.innerHTML = '<i class="fas fa-download"></i> Install Application';
+            installBtn.onclick = installPWA;
+            
+            const header = document.querySelector('.header');
+            header.appendChild(installBtn);
+        }
+
+        function hideInstallButton() {
+            const installBtn = document.getElementById('installBtn');
+            if (installBtn) {
+                installBtn.remove();
+            }
+        }
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('✅ User accepted PWA install');
+                    } else {
+                        console.log('❌ User dismissed PWA install');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        function updateApp() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistration().then(registration => {
+                    if (registration && registration.waiting) {
+                        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                        window.location.reload();
+                    }
+                });
+            }
+        }
+
+        function showOnlineStatus() {
+            const status = document.createElement('div');
+            status.id = 'onlineStatus';
+            status.className = 'status-online';
+            status.innerHTML = '<i class="fas fa-wifi"></i> Connected';
+            document.body.appendChild(status);
+            
+            setTimeout(() => {
+                const statusEl = document.getElementById('onlineStatus');
+                if (statusEl) statusEl.remove();
+            }, 3000);
+        }
+
+        function showOfflineStatus() {
+            const status = document.createElement('div');
+            status.id = 'offlineStatus';
+            status.className = 'status-offline';
+            status.innerHTML = '<i class="fas fa-wifi-slash"></i> Offline';
+            document.body.appendChild(status);
+        }
+
+        function showSuccessMessage(message) {
+            const notification = document.createElement('div');
+            notification.className = 'success-notification';
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas fa-check-circle"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Make functions global
+        window.installPWA = installPWA;
+        window.updateApp = updateApp;
+    </script>
+</body>
+</html>

@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleMP3 Converter - Legal Policies</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Legal policies and terms for SimpleMP3 Converter">
+    <meta name="theme-color" content="#ff6b6b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Legal Policies">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Dark Theme (Default) */
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --accent-primary: #ff6b6b;
+            --accent-secondary: #4ecdc4;
+            --accent-success: #45b7d1;
+            --accent-warning: #f9ca24;
+            --accent-error: #f0932b;
+            --border-color: #333333;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-tertiary: #e5e5e5;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --accent-primary: #ff6b6b;
+            --accent-secondary: #4ecdc4;
+            --accent-success: #45b7d1;
+            --accent-warning: #f9ca24;
+            --accent-error: #f0932b;
+            --border-color: #dddddd;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-primary);
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .back-btn {
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn:hover {
+            background: var(--accent-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 0;
+            position: sticky;
+            top: 80px;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            padding: 0 2rem 1rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .policy-nav {
+            list-style: none;
+        }
+
+        .policy-nav li {
+            margin: 0.5rem 0;
+        }
+
+        .policy-nav a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .policy-nav a:hover,
+        .policy-nav a.active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-left-color: var(--accent-primary);
+        }
+
+        .policy-nav a i {
+            font-size: 1.1rem;
+            width: 20px;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .policy-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .policy-header {
+            margin-bottom: 2rem;
+        }
+
+        .policy-title {
+            font-size: 2.5rem;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .policy-title i {
+            font-size: 2rem;
+        }
+
+        .policy-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .policy-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .meta-item i {
+            color: var(--accent-primary);
+        }
+
+        /* Policy Sections */
+        .policy-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--accent-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            font-size: 1.2rem;
+        }
+
+        .section-content {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .section-content h4 {
+            color: var(--text-primary);
+            margin: 1.5rem 0 0.5rem 0;
+            font-size: 1.2rem;
+        }
+
+        .section-content ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .section-content li {
+            margin: 0.5rem 0;
+            line-height: 1.6;
+        }
+
+        .section-content p {
+            margin: 1rem 0;
+            line-height: 1.7;
+        }
+
+        .highlight-box {
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-primary);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .highlight-box h4 {
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .sidebar-title {
+                text-align: center;
+            }
+
+            .policy-nav {
+                display: flex;
+                overflow-x: auto;
+                padding: 0 1rem;
+            }
+
+            .policy-nav li {
+                flex-shrink: 0;
+                margin: 0 0.5rem;
+            }
+
+            .policy-nav a {
+                padding: 0.75rem 1rem;
+                white-space: nowrap;
+            }
+
+            .content-area {
+                padding: 1rem;
+            }
+
+            .policy-title {
+                font-size: 2rem;
+            }
+
+            .policy-meta {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-secondary);
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-in-left {
+            animation: slideInLeft 0.5s ease;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-gavel"></i>
+            Legal Policies
+        </div>
+        <button class="back-btn" onclick="window.close()">
+            <i class="fas fa-arrow-left"></i>
+            Back to Converter
+        </button>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-title">
+                <i class="fas fa-list"></i>
+                Policy Navigation
+            </div>
+            <ul class="policy-nav">
+                <li>
+                    <a href="#usage-policy" class="nav-link active" data-policy="usage">
+                        <i class="fas fa-file-contract"></i>
+                        Usage Policy
+                    </a>
+                </li>
+                <li>
+                    <a href="#privacy-policy" class="nav-link" data-policy="privacy">
+                        <i class="fas fa-shield-alt"></i>
+                        Privacy Policy
+                    </a>
+                </li>
+                <li>
+                    <a href="#legal-disclaimer" class="nav-link" data-policy="disclaimer">
+                        <i class="fas fa-gavel"></i>
+                        Legal Disclaimer
+                    </a>
+                </li>
+                <li>
+                    <a href="#terms-of-service" class="nav-link" data-policy="terms">
+                        <i class="fas fa-clipboard-list"></i>
+                        Terms of Service
+                    </a>
+                </li>
+                <li>
+                    <a href="#copyright-protection" class="nav-link" data-policy="copyright">
+                        <i class="fas fa-copyright"></i>
+                        Copyright Protection
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Content Area -->
+        <main class="content-area">
+            <div class="policy-content">
+                <!-- Usage Policy -->
+                <div id="usage-policy" class="policy-section fade-in" style="display: block;">
+                    <div class="policy-header">
+                        <h1 class="policy-title">
+                            <i class="fas fa-file-contract"></i>
+                            Usage Policy
+                        </h1>
+                        <p class="policy-subtitle">Guidelines for using SimpleMP3 Converter</p>
+                        <div class="policy-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Last Updated: October 5, 2025</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Version: 1.0.0</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-gavel"></i>
+                                <span>Legal Compliance: Active</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="highlight-box">
+                            <h4>© 2025 SimpleMP3 Converter - All Rights Reserved</h4>
+                            <p>This software is proprietary and confidential. Unauthorized copying, distribution, or modification is strictly prohibited.</p>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-check-circle"></i>
+                                Permitted Uses
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>Personal Use:</strong> Converting YouTube videos for personal offline listening</li>
+                                    <li><strong>Educational Purposes:</strong> Using converted content for learning and research</li>
+                                    <li><strong>Accessibility:</strong> Converting content for persons with disabilities</li>
+                                    <li><strong>Fair Use:</strong> Criticism, commentary, and educational analysis</li>
+                                    <li><strong>Non-Commercial:</strong> All usage must be non-commercial in nature</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-times-circle"></i>
+                                Prohibited Uses
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>Commercial Distribution:</strong> Selling or distributing converted content</li>
+                                    <li><strong>Streaming Platforms:</strong> Uploading to music streaming services</li>
+                                    <li><strong>Commercial Libraries:</strong> Creating commercial music libraries</li>
+                                    <li><strong>Copyright Violation:</strong> Any use that violates copyright laws</li>
+                                    <li><strong>Unauthorized Redistribution:</strong> Sharing converted files without permission</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-balance-scale"></i>
+                                Legal Compliance
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>YouTube Terms:</strong> Respect YouTube's Terms of Service</li>
+                                    <li><strong>Fair Use Guidelines:</strong> Follow Fair Use doctrine principles</li>
+                                    <li><strong>DMCA Compliance:</strong> Comply with Digital Millennium Copyright Act</li>
+                                    <li><strong>Copyright Respect:</strong> Respect copyright holders' rights</li>
+                                    <li><strong>Local Laws:</strong> Follow all applicable local and international laws</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="highlight-box">
+                            <h4>Important Notice</h4>
+                            <p><strong>By using this service, you agree to these terms and conditions. Violation of these policies may result in service termination and legal action.</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy Policy -->
+                <div id="privacy-policy" class="policy-section">
+                    <div class="policy-header">
+                        <h1 class="policy-title">
+                            <i class="fas fa-shield-alt"></i>
+                            Privacy Policy
+                        </h1>
+                        <p class="policy-subtitle">How we protect and handle your data</p>
+                        <div class="policy-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Last Updated: October 5, 2025</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>GDPR Compliant</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-lock"></i>
+                                <span>Data Encrypted</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="highlight-box">
+                            <h4>Your Privacy is Important to Us</h4>
+                            <p>We are committed to protecting your privacy and ensuring the security of your data.</p>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-database"></i>
+                                Data We Collect
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>Technical Data:</strong> System information for service operation</li>
+                                    <li><strong>Usage Statistics:</strong> Anonymized conversion statistics</li>
+                                    <li><strong>Preferences:</strong> Your settings and preferences</li>
+                                    <li><strong>Error Logs:</strong> Technical errors for service improvement</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-ban"></i>
+                                Data We DON'T Collect
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>Personal Information:</strong> No names, emails, or phone numbers</li>
+                                    <li><strong>Content Data:</strong> No access to converted file content</li>
+                                    <li><strong>Browsing History:</strong> No tracking of your browsing habits</li>
+                                    <li><strong>Financial Data:</strong> No payment or financial information</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-lock"></i>
+                                Data Protection
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>Encryption:</strong> All data encrypted with AES-256</li>
+                                    <li><strong>No Sharing:</strong> No data sharing with third parties</li>
+                                    <li><strong>Auto Deletion:</strong> Data automatically deleted after 30 days</li>
+                                    <li><strong>GDPR Compliant:</strong> Full compliance with EU data protection laws</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legal Disclaimer -->
+                <div id="legal-disclaimer" class="policy-section">
+                    <div class="policy-header">
+                        <h1 class="policy-title">
+                            <i class="fas fa-gavel"></i>
+                            Legal Disclaimer
+                        </h1>
+                        <p class="policy-subtitle">Important legal information about this service</p>
+                        <div class="policy-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Last Updated: October 5, 2025</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Legal Protection: Active</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-balance-scale"></i>
+                                <span>Compliance: Verified</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="highlight-box">
+                            <h4>Service Description</h4>
+                            <p>This is an educational tool designed for personal use, fully compliant with Fair Use doctrine and DMCA regulations.</p>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-tools"></i>
+                                Legal Protection Measures
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>Rate Limiting:</strong> Prevents abuse through usage limits</li>
+                                    <li><strong>Content Filtering:</strong> Blocks commercial and protected content</li>
+                                    <li><strong>Abuse Detection:</strong> Automatic detection of misuse patterns</li>
+                                    <li><strong>Authority Cooperation:</strong> Full cooperation with legal authorities</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Service Limitations
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>"As Is" Service:</strong> Service provided without warranties</li>
+                                    <li><strong>No Availability Guarantee:</strong> No guarantee of continuous availability</li>
+                                    <li><strong>User Responsibility:</strong> Users responsible for legal compliance</li>
+                                    <li><strong>No Liability:</strong> No liability for misuse or damages</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-balance-scale"></i>
+                                Legal Compliance
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>Fair Use Doctrine:</strong> Service operates under Fair Use principles</li>
+                                    <li><strong>DMCA Compliance:</strong> Full compliance with Digital Millennium Copyright Act</li>
+                                    <li><strong>Educational Purpose:</strong> Designed for educational and personal use</li>
+                                    <li><strong>Non-Commercial:</strong> Strictly non-commercial operation</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-shield-alt"></i>
+                                User Responsibilities
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>Legal Compliance:</strong> Users must comply with all applicable laws</li>
+                                    <li><strong>Copyright Respect:</strong> Respect copyright holders' rights</li>
+                                    <li><strong>Personal Use Only:</strong> Use converted content for personal purposes only</li>
+                                    <li><strong>No Redistribution:</strong> Do not redistribute converted content</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-ban"></i>
+                                Prohibited Uses
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>Commercial Use:</strong> No commercial use of converted content</li>
+                                    <li><strong>Copyright Violation:</strong> No violation of copyright laws</li>
+                                    <li><strong>Abuse:</strong> No abuse or misuse of the service</li>
+                                    <li><strong>Illegal Activities:</strong> No use for illegal purposes</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="highlight-box">
+                            <h4>Important Notice</h4>
+                            <p><strong>Use this service responsibly and in compliance with all applicable laws. We reserve the right to terminate service for violations.</strong></p>
+                            <p><strong>Contact:</strong> For legal questions, contact us at <strong>contact.holypixel@gmail.com</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms of Service -->
+                <div id="terms-of-service" class="policy-section">
+                    <div class="policy-header">
+                        <h1 class="policy-title">
+                            <i class="fas fa-clipboard-list"></i>
+                            Terms of Service
+                        </h1>
+                        <p class="policy-subtitle">Complete terms and conditions for using our service</p>
+                        <div class="policy-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Last Updated: October 5, 2025</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-file-contract"></i>
+                                <span>Version: 1.0.0</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-gavel"></i>
+                                <span>Legally Binding</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="highlight-box">
+                            <h4>Essential Terms and Conditions</h4>
+                            <p>By using this service, you agree to be bound by these essential terms and conditions. If you do not agree, please do not use the service.</p>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-handshake"></i>
+                                1. Acceptance
+                            </h3>
+                            <div class="section-content">
+                                <p>By using this service, you confirm that you own the necessary rights or have permission to upload/convert materials, or that the materials are distributed under a license that permits conversion.</p>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-ban"></i>
+                                2. Restrictions
+                            </h3>
+                            <div class="section-content">
+                                <p>It is prohibited to use the service to violate third-party copyrights. Any illegal use may result in account suspension and cooperation with authorities or rights holders.</p>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-gavel"></i>
+                                3. DMCA and Notification Procedure
+                            </h3>
+                            <div class="section-content">
+                                <p>We have a DMCA agent: <strong>contact.holypixel@gmail.com</strong>. If we receive a valid notification, we will remove content in accordance with applicable law. We have a procedure for counter-notifications.</p>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-shield-alt"></i>
+                                4. Limitation of Liability / Indemnification
+                            </h3>
+                            <div class="section-content">
+                                <p>The user will indemnify and hold harmless the platform for any claims resulting from improper use of the service.</p>
+                            </div>
+                        </div>
+
+                        <div class="highlight-box">
+                            <h4>Important Notice</h4>
+                            <p><strong>Contact:</strong> For legal questions, contact us at <strong>contact.holypixel@gmail.com</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Copyright Protection -->
+                <div id="copyright-protection" class="policy-section">
+                    <div class="policy-header">
+                        <h1 class="policy-title">
+                            <i class="fas fa-copyright"></i>
+                            Copyright Protection
+                        </h1>
+                        <p class="policy-subtitle">Our commitment to protecting intellectual property rights</p>
+                        <div class="policy-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Last Updated: October 5, 2025</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>DMCA Compliant</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="highlight-box">
+                            <h4>Copyright Protection Policy</h4>
+                            <p>We respect intellectual property rights and comply with all applicable copyright laws.</p>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-balance-scale"></i>
+                                Legal Compliance
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>YouTube Terms:</strong> Respect YouTube's Terms of Service</li>
+                                    <li><strong>Fair Use Guidelines:</strong> Follow Fair Use doctrine principles</li>
+                                    <li><strong>DMCA Compliance:</strong> Comply with Digital Millennium Copyright Act</li>
+                                    <li><strong>Copyright Respect:</strong> Respect copyright holders' rights</li>
+                                    <li><strong>Local Laws:</strong> Follow all applicable local and international laws</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="highlight-box">
+                            <h4>Important Notice</h4>
+                            <p><strong>Contact:</strong> For legal questions, contact us at <strong>contact.holypixel@gmail.com</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Disclaimer -->
+                <div id="legal-disclaimer" class="policy-section">
+                    <div class="policy-header">
+                        <h1 class="policy-title">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Legal Disclaimer
+                        </h1>
+                        <p class="policy-subtitle">Important legal disclaimers and limitations</p>
+                        <div class="policy-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Last Updated: October 5, 2025</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Informational</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="highlight-box">
+                            <h4>Disclaimer of Warranties</h4>
+                            <p>This service is provided "as is" without warranties of any kind, either express or implied.</p>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-balance-scale"></i>
+                                Legal Compliance
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>YouTube Terms:</strong> Respect YouTube's Terms of Service</li>
+                                    <li><strong>Fair Use Guidelines:</strong> Follow Fair Use doctrine principles</li>
+                                    <li><strong>DMCA Compliance:</strong> Comply with Digital Millennium Copyright Act</li>
+                                    <li><strong>Copyright Respect:</strong> Respect copyright holders' rights</li>
+                                    <li><strong>Local Laws:</strong> Follow all applicable local and international laws</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="highlight-box">
+                            <h4>Important Notice</h4>
+                            <p><strong>Contact:</strong> For legal questions, contact us at <strong>contact.holypixel@gmail.com</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy Policy -->
+                <div id="privacy-policy" class="policy-section">
+                    <div class="policy-header">
+                        <h1 class="policy-title">
+                            <i class="fas fa-user-shield"></i>
+                            Privacy Policy
+                        </h1>
+                        <p class="policy-subtitle">How we collect, use, and protect your information</p>
+                        <div class="policy-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Last Updated: October 5, 2025</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-lock"></i>
+                                <span>GDPR Compliant</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="highlight-box">
+                            <h4>Information Collection</h4>
+                            <p>We collect minimal information necessary to provide our service effectively.</p>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-balance-scale"></i>
+                                Legal Compliance
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>YouTube Terms:</strong> Respect YouTube's Terms of Service</li>
+                                    <li><strong>Fair Use Guidelines:</strong> Follow Fair Use doctrine principles</li>
+                                    <li><strong>DMCA Compliance:</strong> Comply with Digital Millennium Copyright Act</li>
+                                    <li><strong>Copyright Respect:</strong> Respect copyright holders' rights</li>
+                                    <li><strong>Local Laws:</strong> Follow all applicable local and international laws</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="highlight-box">
+                            <h4>Important Notice</h4>
+                            <p><strong>Contact:</strong> For legal questions, contact us at <strong>contact.holypixel@gmail.com</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Usage Policy -->
+                <div id="usage-policy" class="policy-section">
+                    <div class="policy-header">
+                        <h1 class="policy-title">
+                            <i class="fas fa-file-contract"></i>
+                            Usage Policy
+                        </h1>
+                        <p class="policy-subtitle">Guidelines for proper use of our service</p>
+                        <div class="policy-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Last Updated: October 5, 2025</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-gavel"></i>
+                                <span>Legally Binding</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="highlight-box">
+                            <h4>Acceptable Use</h4>
+                            <p>Use our service responsibly and in accordance with all applicable laws and regulations.</p>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-balance-scale"></i>
+                                Legal Compliance
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>YouTube Terms:</strong> Respect YouTube's Terms of Service</li>
+                                    <li><strong>Fair Use Guidelines:</strong> Follow Fair Use doctrine principles</li>
+                                    <li><strong>DMCA Compliance:</strong> Comply with Digital Millennium Copyright Act</li>
+                                    <li><strong>Copyright Respect:</strong> Respect copyright holders' rights</li>
+                                    <li><strong>Local Laws:</strong> Follow all applicable local and international laws</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="highlight-box">
+                            <h4>Important Notice</h4>
+                            <p><strong>Contact:</strong> For legal questions, contact us at <strong>contact.holypixel@gmail.com</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const policySections = document.querySelectorAll('.policy-section');
+
+            // Show first section by default
+            if (policySections.length > 0) {
+                policySections[0].style.display = 'block';
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Hide all sections
+                    policySections.forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show selected section
+                    const targetId = this.getAttribute('data-policy');
+                    let targetSection;
+                    
+                    switch(targetId) {
+                        case 'usage':
+                            targetSection = document.getElementById('usage-policy');
+                            break;
+                        case 'terms':
+                            targetSection = document.getElementById('terms-of-service');
+                            break;
+                        case 'copyright':
+                            targetSection = document.getElementById('copyright-protection');
+                            break;
+                        case 'disclaimer':
+                            targetSection = document.getElementById('legal-disclaimer');
+                            break;
+                        case 'privacy':
+                            targetSection = document.getElementById('privacy-policy');
+                            break;
+                    }
+                    
+                    if (targetSection) {
+                        targetSection.style.display = 'block';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+                                    <li><strong>Commercial Use:</strong> No commercial distribution of converted content</li>
+                                    <li><strong>Copyright Violation:</strong> No violation of copyright laws</li>
+                                    <li><strong>Abuse:</strong> No abuse of the service or its resources</li>
+                                    <li><strong>Illegal Activities:</strong> No use for illegal purposes</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-shield-alt"></i>
+                                Service Availability
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>No Guarantee:</strong> Service provided "as is" without warranties</li>
+                                    <li><strong>Maintenance:</strong> Service may be temporarily unavailable for maintenance</li>
+                                    <li><strong>Updates:</strong> Features may be added, modified, or removed</li>
+                                    <li><strong>Termination:</strong> Service may be terminated at any time</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-balance-scale"></i>
+                                Limitation of Liability
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>No Damages:</strong> We are not liable for any damages or losses</li>
+                                    <li><strong>User Responsibility:</strong> Users are responsible for their actions</li>
+                                    <li><strong>Third Party Content:</strong> No liability for third party content</li>
+                                    <li><strong>Maximum Liability:</strong> Limited to the amount paid for the service (if any)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="highlight-box">
+                            <h4>Contact Information</h4>
+                            <p>For questions about these terms, contact us at: <strong>legal@simplemp3.com</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Copyright Protection -->
+                <div id="copyright-protection" class="policy-section">
+                    <div class="policy-header">
+                        <h1 class="policy-title">
+                            <i class="fas fa-copyright"></i>
+                            Copyright Protection
+                        </h1>
+                        <p class="policy-subtitle">How we protect intellectual property rights</p>
+                        <div class="policy-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Last Updated: October 5, 2025</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Protection: Active</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-gavel"></i>
+                                <span>DMCA Compliant</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="highlight-box">
+                            <h4>Our Commitment to Copyright Protection</h4>
+                            <p>We are committed to protecting intellectual property rights and complying with all applicable copyright laws.</p>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-shield-alt"></i>
+                                Protection Measures
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>Rate Limiting:</strong> Limits to prevent abuse and overuse</li>
+                                    <li><strong>Content Filtering:</strong> Blocks protected and commercial content</li>
+                                    <li><strong>Monitoring:</strong> Continuous monitoring for violations and abuse</li>
+                                    <li><strong>DMCA Compliance:</strong> Full DMCA notice and takedown procedures</li>
+                                    <li><strong>Abuse Detection:</strong> Automatic detection of misuse patterns</li>
+                                    <li><strong>User Blocking:</strong> Automatic blocking of violating users</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Reporting Violations
+                            </h3>
+                            <div class="section-content">
+                                <p>If you believe your copyright has been violated, please contact us immediately:</p>
+                                <ul>
+                                    <li><strong>Email:</strong> dmca@simplemp3.com</li>
+                                    <li><strong>Response Time:</strong> Within 24 hours</li>
+                                    <li><strong>Procedure:</strong> Full DMCA compliance</li>
+                                    <li><strong>Required Information:</strong> Copyright owner details, infringing content, contact information</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-gavel"></i>
+                                Legal Cooperation
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>Authority Cooperation:</strong> Full cooperation with legal authorities</li>
+                                    <li><strong>Court Orders:</strong> Compliance with valid court orders</li>
+                                    <li><strong>Investigation Support:</strong> Support for legitimate investigations</li>
+                                    <li><strong>Data Preservation:</strong> Preservation of relevant data when required</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="policy-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-ban"></i>
+                                Enforcement Actions
+                            </h3>
+                            <div class="section-content">
+                                <ul>
+                                    <li><strong>Warning System:</strong> Progressive warnings for violations</li>
+                                    <li><strong>Service Suspension:</strong> Temporary suspension for repeated violations</li>
+                                    <li><strong>Account Termination:</strong> Permanent termination for severe violations</li>
+                                    <li><strong>Legal Action:</strong> Cooperation with legal authorities for serious violations</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="highlight-box">
+                            <h4>Our Commitment</h4>
+                            <p>We are committed to protecting intellectual property rights and will take all necessary actions to ensure compliance with copyright laws and regulations.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const policySections = document.querySelectorAll('.policy-section');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Hide all sections
+                    policySections.forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show selected section
+                    const policyType = this.getAttribute('data-policy');
+                    let targetSection;
+                    
+                    // Map policy types to actual section IDs
+                    switch(policyType) {
+                        case 'usage':
+                            targetSection = document.getElementById('usage-policy');
+                            break;
+                        case 'privacy':
+                            targetSection = document.getElementById('privacy-policy');
+                            break;
+                        case 'disclaimer':
+                            targetSection = document.getElementById('legal-disclaimer');
+                            break;
+                        case 'terms':
+                            targetSection = document.getElementById('terms-of-service');
+                            break;
+                        case 'copyright':
+                            targetSection = document.getElementById('copyright-protection');
+                            break;
+                    }
+                    if (targetSection) {
+                        // Hide all sections first
+                        policySections.forEach(section => {
+                            section.style.display = 'none';
+                        });
+                        // Show selected section
+                        targetSection.style.display = 'block';
+                        targetSection.classList.add('fade-in');
+                    }
+                });
+            });
+
+            // Back button functionality
+            const backBtn = document.querySelector('.back-btn');
+            backBtn.addEventListener('click', function() {
+                if (window.opener) {
+                    window.close();
+                } else {
+                    window.location.href = '/';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

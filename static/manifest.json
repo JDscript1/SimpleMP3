@@ -1,0 +1,62 @@
+{
+  "name": "SimpleMP3 Converter",
+  "short_name": "SimpleMP3",
+  "description": "SimpleMP3 Converter - Convertește orice video în MP3 de calitate înaltă cu interfață modernă și funcționalități profesionale",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#ff6b6b",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "ro",
+  "dir": "ltr",
+  "categories": ["music", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/static/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "handle_links": "preferred",
+  "capture_links": "existing-client-navigate",
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "text/plain": [".txt"],
+        "application/json": [".json"]
+      }
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+youtube",
+      "url": "/?url=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}
