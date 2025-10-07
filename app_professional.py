@@ -740,89 +740,121 @@ def convert_video_to_audio(url, conversion_id, settings):
             video_title = info.get('title', '') if info else ''
             print(f"Video title: {video_title}")
             
+            # Ensure downloads directory exists
+            if not os.path.exists(DOWNLOADS_DIR):
+                os.makedirs(DOWNLOADS_DIR, exist_ok=True)
+                print(f"Created downloads directory: {DOWNLOADS_DIR}")
+            
+            # List all files in downloads directory for debugging
+            try:
+                all_files = os.listdir(DOWNLOADS_DIR)
+                print(f"All files in downloads directory: {all_files}")
+            except Exception as e:
+                print(f"Error listing downloads directory: {e}")
+            
             # Wait a moment for file operations to complete
-            time.sleep(2)
+            time.sleep(3)
             
             # Try to find file by title and extension
             if video_title:
+                # Clean video title for better matching
+                clean_title = video_title.replace('|', '').replace('｜', '').strip()
+                print(f"Looking for files containing: '{clean_title}'")
+                
                 for file in os.listdir(DOWNLOADS_DIR):
-                    if file.endswith(f'.{expected_ext}') and video_title in file:
-                        file_path = os.path.join(DOWNLOADS_DIR, file)
-                        
-                        # Wait for file to be fully written
-                        max_wait = 10
-                        wait_count = 0
-                        while wait_count < max_wait:
-                            try:
-                                # Try to open file to check if it's fully written
-                                with open(file_path, 'rb') as f:
-                                    f.seek(0, 2)  # Seek to end
-                                    file_size = f.tell()
-                                    if file_size > 0:
-                                        break
-                            except (OSError, IOError):
-                                pass
-                            time.sleep(1)
-                            wait_count += 1
-                        
-                        conversions[conversion_id]['file_path'] = file_path
-                        # Clean filename - remove conversion_id prefix and fix double extensions
-                        clean_filename = file
-                        if file.startswith(conversion_id):
-                            clean_filename = file[len(conversion_id)+1:]  # Remove conversion_id + underscore
-                        
-                        # Fix double extensions (e.g., .mp3.mp3 -> .mp3)
-                        if clean_filename.endswith(f'.{expected_ext}.{expected_ext}'):
-                            clean_filename = clean_filename[:-len(f'.{expected_ext}')]
-                        
-                        # Clean up any other unwanted characters
-                        clean_filename = clean_filename.replace('_', ' ').replace('  ', ' ').strip()
-                        
-                        conversions[conversion_id]['filename'] = clean_filename
-                        print(f"Found file by title: {file_path}")
-                        found_file = True
-                        break
+                    if file.endswith(f'.{expected_ext}'):
+                        print(f"Checking file: {file}")
+                        # Try multiple matching strategies
+                        if (video_title in file or 
+                            clean_title in file or 
+                            any(word in file for word in clean_title.split() if len(word) > 3)):
+                            file_path = os.path.join(DOWNLOADS_DIR, file)
+                            
+                            # Wait for file to be fully written
+                            max_wait = 10
+                            wait_count = 0
+                            while wait_count < max_wait:
+                                try:
+                                    # Try to open file to check if it's fully written
+                                    with open(file_path, 'rb') as f:
+                                        f.seek(0, 2)  # Seek to end
+                                        file_size = f.tell()
+                                        if file_size > 0:
+                                            break
+                                except (OSError, IOError):
+                                    pass
+                                time.sleep(1)
+                                wait_count += 1
+                            
+                            conversions[conversion_id]['file_path'] = file_path
+                            # Clean filename - remove conversion_id prefix and fix double extensions
+                            clean_filename = file
+                            if file.startswith(conversion_id):
+                                clean_filename = file[len(conversion_id)+1:]  # Remove conversion_id + underscore
+                            
+                            # Fix double extensions (e.g., .mp3.mp3 -> .mp3)
+                            if clean_filename.endswith(f'.{expected_ext}.{expected_ext}'):
+                                clean_filename = clean_filename[:-len(f'.{expected_ext}')]
+                            
+                            # Clean up any other unwanted characters
+                            clean_filename = clean_filename.replace('_', ' ').replace('  ', ' ').strip()
+                            
+                            conversions[conversion_id]['filename'] = clean_filename
+                            print(f"Found file by title: {file_path}")
+                            found_file = True
+                            break
             
             # If not found by title, try any file with correct extension created recently
             if not found_file:
+                print("File not found by title, trying recent files...")
+                recent_files = []
                 for file in os.listdir(DOWNLOADS_DIR):
                     if file.endswith(f'.{expected_ext}'):
                         file_path = os.path.join(DOWNLOADS_DIR, file)
                         try:
                             file_mtime = os.path.getmtime(file_path)
                             if file_mtime > start_time - 60:  # Created in last minute
-                                # Wait for file to be fully written
-                                max_wait = 5
-                                wait_count = 0
-                                while wait_count < max_wait:
-                                    try:
-                                        with open(file_path, 'rb') as f:
-                                            f.seek(0, 2)  # Seek to end
-                                            file_size = f.tell()
-                                            if file_size > 0:
-                                                break
-                                    except (OSError, IOError):
-                                        pass
-                                    time.sleep(1)
-                                    wait_count += 1
-                                
-                                conversions[conversion_id]['file_path'] = file_path
-                                # Clean filename - remove conversion_id prefix and fix double extensions
-                                clean_filename = file
-                                if file.startswith(conversion_id):
-                                    clean_filename = file[len(conversion_id)+1:]  # Remove conversion_id + underscore
-                                
-                                # Fix double extensions (e.g., .mp3.mp3 -> .mp3)
-                                if clean_filename.endswith(f'.{expected_ext}.{expected_ext}'):
-                                    clean_filename = clean_filename[:-len(f'.{expected_ext}')]
-                                
-                                # Clean up any other unwanted characters
-                                clean_filename = clean_filename.replace('_', ' ').replace('  ', ' ').strip()
-                                
-                                conversions[conversion_id]['filename'] = clean_filename
-                                print(f"Found recent file: {file_path}")
-                                found_file = True
-                                break
+                                recent_files.append((file, file_path, file_mtime))
+                                print(f"Found recent file: {file} (modified: {file_mtime})")
+                        except OSError:
+                            continue
+                
+                # Sort by modification time (newest first)
+                recent_files.sort(key=lambda x: x[2], reverse=True)
+                
+                for file, file_path, file_mtime in recent_files:
+                    # Wait for file to be fully written
+                    max_wait = 5
+                    wait_count = 0
+                    while wait_count < max_wait:
+                        try:
+                            with open(file_path, 'rb') as f:
+                                f.seek(0, 2)  # Seek to end
+                                file_size = f.tell()
+                                if file_size > 0:
+                                    break
+                        except (OSError, IOError):
+                            pass
+                        time.sleep(1)
+                        wait_count += 1
+                    
+                    conversions[conversion_id]['file_path'] = file_path
+                    # Clean filename - remove conversion_id prefix and fix double extensions
+                    clean_filename = file
+                    if file.startswith(conversion_id):
+                        clean_filename = file[len(conversion_id)+1:]  # Remove conversion_id + underscore
+                    
+                    # Fix double extensions (e.g., .mp3.mp3 -> .mp3)
+                    if clean_filename.endswith(f'.{expected_ext}.{expected_ext}'):
+                        clean_filename = clean_filename[:-len(f'.{expected_ext}')]
+                    
+                    # Clean up any other unwanted characters
+                    clean_filename = clean_filename.replace('_', ' ').replace('  ', ' ').strip()
+                    
+                    conversions[conversion_id]['filename'] = clean_filename
+                    print(f"Using most recent file: {file_path}")
+                    found_file = True
+                    break
                         except (OSError, IOError) as e:
                             print(f"Error accessing file {file_path}: {e}")
                             continue
