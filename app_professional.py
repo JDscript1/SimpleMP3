@@ -823,41 +823,42 @@ def convert_video_to_audio(url, conversion_id, settings):
                 recent_files.sort(key=lambda x: x[2], reverse=True)
                 
                 for file, file_path, file_mtime in recent_files:
-                    # Wait for file to be fully written
-                    max_wait = 5
-                    wait_count = 0
-                    while wait_count < max_wait:
-                        try:
-                            with open(file_path, 'rb') as f:
-                                f.seek(0, 2)  # Seek to end
-                                file_size = f.tell()
-                                if file_size > 0:
-                                    break
-                        except (OSError, IOError):
-                            pass
-                        time.sleep(1)
-                        wait_count += 1
-                    
-                    conversions[conversion_id]['file_path'] = file_path
-                    # Clean filename - remove conversion_id prefix and fix double extensions
-                    clean_filename = file
-                    if file.startswith(conversion_id):
-                        clean_filename = file[len(conversion_id)+1:]  # Remove conversion_id + underscore
-                    
-                    # Fix double extensions (e.g., .mp3.mp3 -> .mp3)
-                    if clean_filename.endswith(f'.{expected_ext}.{expected_ext}'):
-                        clean_filename = clean_filename[:-len(f'.{expected_ext}')]
-                    
-                    # Clean up any other unwanted characters
-                    clean_filename = clean_filename.replace('_', ' ').replace('  ', ' ').strip()
-                    
-                    conversions[conversion_id]['filename'] = clean_filename
-                    print(f"Using most recent file: {file_path}")
-                    found_file = True
-                    break
-                        except (OSError, IOError) as e:
-                            print(f"Error accessing file {file_path}: {e}")
-                            continue
+                    try:
+                        # Wait for file to be fully written
+                        max_wait = 5
+                        wait_count = 0
+                        while wait_count < max_wait:
+                            try:
+                                with open(file_path, 'rb') as f:
+                                    f.seek(0, 2)  # Seek to end
+                                    file_size = f.tell()
+                                    if file_size > 0:
+                                        break
+                            except (OSError, IOError):
+                                pass
+                            time.sleep(1)
+                            wait_count += 1
+                        
+                        conversions[conversion_id]['file_path'] = file_path
+                        # Clean filename - remove conversion_id prefix and fix double extensions
+                        clean_filename = file
+                        if file.startswith(conversion_id):
+                            clean_filename = file[len(conversion_id)+1:]  # Remove conversion_id + underscore
+                        
+                        # Fix double extensions (e.g., .mp3.mp3 -> .mp3)
+                        if clean_filename.endswith(f'.{expected_ext}.{expected_ext}'):
+                            clean_filename = clean_filename[:-len(f'.{expected_ext}')]
+                        
+                        # Clean up any other unwanted characters
+                        clean_filename = clean_filename.replace('_', ' ').replace('  ', ' ').strip()
+                        
+                        conversions[conversion_id]['filename'] = clean_filename
+                        print(f"Using most recent file: {file_path}")
+                        found_file = True
+                        break
+                    except (OSError, IOError) as e:
+                        print(f"Error accessing file {file_path}: {e}")
+                        continue
             
             if not found_file:
                 print(f"ERROR: No file found starting with {conversion_id}")
