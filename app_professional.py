@@ -566,43 +566,21 @@ def convert_video_to_audio(url, conversion_id, settings):
                 'extractaudio': True,  # Forțează extragerea audio
                 'download_archive': None,  # Nu folosi archive
                 'force_download': True,  # Forțează descărcarea
-                # Anti-bot measures - Advanced
+                # Anti-bot measures - Simplified for older yt-dlp
                 'user_agent': get_random_user_agent(),
                 'referer': 'https://www.youtube.com/',
-                'origin': 'https://www.youtube.com',
                 'cookiesfrombrowser': None,  # Nu folosi cookies
-                'extractor_retries': 2,  # Further reduced
-                'sleep_interval': 3,  # Increased pause between requests
-                'max_sleep_interval': 10,  # Increased max pause
-                'sleep_interval_subtitles': 3,  # Increased pause for subtitles
-                'sleep_interval_requests': 3,  # Increased pause for requests
-                'sleep_interval_fragments': 3,  # Increased pause for fragments
-                'retries': 2,  # Further reduced retries
-                'fragment_retries': 2,  # Reduced fragment retries
+                'extractor_retries': 1,  # Minimal retries
+                'sleep_interval': 2,  # Moderate pause
+                'max_sleep_interval': 5,  # Moderate max pause
+                'retries': 1,  # Minimal retries
+                'fragment_retries': 1,  # Minimal fragment retries
                 'http_chunk_size': 1048576,  # 1MB chunks
                 'socket_timeout': 30,  # Socket timeout
                 'no_check_certificate': True,  # Skip certificate check
                 'prefer_insecure': False,  # Prefer secure connections
                 'geo_bypass': True,  # Bypass geo restrictions
                 'geo_bypass_country': 'US',  # Use US as country
-                'geo_bypass_ip_block': None,  # No IP blocking
-                # Additional anti-bot measures
-                'extractor_args': {
-                    'youtube': {
-                        'skip': ['dash', 'hls'],  # Skip problematic formats
-                        'player_skip': ['configs'],  # Skip player configs
-                        'comment_sort': ['top'],  # Sort comments
-                        'max_comments': [0],  # No comments
-                    }
-                },
-                'http_headers': {
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                    'Accept-Language': 'en-US,en;q=0.5',
-                    'Accept-Encoding': 'gzip, deflate',
-                    'DNT': '1',
-                    'Connection': 'keep-alive',
-                    'Upgrade-Insecure-Requests': '1',
-                }
             }
         
         # Adaugă path-ul de output cu extensia corectă (fără conversion_id în nume)
@@ -990,27 +968,43 @@ def convert_video_to_audio(url, conversion_id, settings):
         
         # Gestionare specifică pentru detectarea bot-ului
         if "Sign in to confirm you're not a bot" in error_msg:
-            print("Bot detection detected, trying alternative approach...")
+            print("Bot detection detected, trying minimal approach...")
             try:
-                # Încearcă cu configurație mai simplă și delay mai mare
-                ydl_opts_anti_bot = ydl_opts.copy()
-                ydl_opts_anti_bot['sleep_interval'] = 5  # Delay mai mare
-                ydl_opts_anti_bot['max_sleep_interval'] = 15  # Delay maxim mai mare
-                ydl_opts_anti_bot['retries'] = 1  # Doar o încercare
-                ydl_opts_anti_bot['extractor_retries'] = 1  # Doar o încercare
-                ydl_opts_anti_bot['format'] = 'bestaudio'  # Format mai simplu
+                # Încearcă cu configurație foarte simplă
+                ydl_opts_minimal = {
+                    'format': 'bestaudio',
+                    'outtmpl': os.path.join(DOWNLOADS_DIR, '%(title)s.%(ext)s'),
+                    'quiet': True,
+                    'no_warnings': True,
+                    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                    'extract_flat': False,
+                    'writethumbnail': False,
+                    'writeinfojson': False,
+                    'writesubtitles': False,
+                    'writeautomaticsub': False,
+                    'ignoreerrors': True,
+                    'no_check_certificate': True,
+                    'prefer_insecure': False,
+                    'geo_bypass': True,
+                    'geo_bypass_country': 'US',
+                    'retries': 1,
+                    'fragment_retries': 1,
+                    'extractor_retries': 1,
+                    'sleep_interval': 1,
+                    'max_sleep_interval': 3,
+                }
                 
                 # Adaugă delay înainte de încercare
-                time.sleep(random.uniform(5.0, 10.0))
+                time.sleep(random.uniform(3.0, 6.0))
                 
-                with yt_dlp.YoutubeDL(ydl_opts_anti_bot) as ydl:
+                with yt_dlp.YoutubeDL(ydl_opts_minimal) as ydl:
                     ydl.download([url])
                 
-                print("Anti-bot approach successful")
+                print("Minimal approach successful")
                 return
-            except Exception as anti_bot_error:
-                print(f"Anti-bot approach also failed: {anti_bot_error}")
-                error_msg = f"Bot detection bypass failed: {str(anti_bot_error)}"
+            except Exception as minimal_error:
+                print(f"Minimal approach also failed: {minimal_error}")
+                error_msg = f"All approaches failed. Last error: {str(minimal_error)}"
         
         # Gestionare specifică pentru formaturi indisponibile
         elif "Requested format is not available" in error_msg:
