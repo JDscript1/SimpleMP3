@@ -88,6 +88,30 @@ import subprocess
 from functools import wraps
 import logging
 import concurrent.futures
+
+def safe_print(text):
+    """Print function that handles encoding issues on Windows"""
+    try:
+        # Ensure text is a string, not bytes
+        if isinstance(text, bytes):
+            text = text.decode('utf-8', errors='replace')
+        
+        # Convert to string if not already
+        text = str(text)
+        
+        # Print to stdout
+        print(text)
+    except (UnicodeEncodeError, UnicodeDecodeError, AttributeError):
+        try:
+            # Replace problematic characters
+            if isinstance(text, bytes):
+                text = text.decode('utf-8', errors='replace')
+            safe_text = str(text).encode('ascii', 'replace').decode('ascii')
+            print(safe_text)
+        except Exception:
+            # Last resort - print a safe message
+            print(f"[Safe Print Error: {type(text).__name__}]")
+
 # Check if running locally or on Railway
 import os
 IS_RAILWAY = os.environ.get('RAILWAY_ENVIRONMENT') is not None
@@ -131,29 +155,6 @@ def add_random_delay():
     """Adaugă un delay aleatoriu pentru a simula comportamentul uman"""
     delay = random.uniform(1.0, 3.0)  # Delay între 1-3 secunde
     time.sleep(delay)
-
-def safe_print(text):
-    """Print function that handles encoding issues on Windows"""
-    try:
-        # Ensure text is a string, not bytes
-        if isinstance(text, bytes):
-            text = text.decode('utf-8', errors='replace')
-        
-        # Convert to string if not already
-        text = str(text)
-        
-        # Try to print normally
-        print(str(text))
-    except (UnicodeEncodeError, UnicodeDecodeError, AttributeError) as e:
-        try:
-            # Replace problematic characters
-            if isinstance(text, bytes):
-                text = text.decode('utf-8', errors='replace')
-            safe_text = str(text).encode('ascii', 'replace').decode('ascii')
-            print(str(safe_text))
-        except Exception:
-            # Last resort - print a safe message
-            print(f"[Safe Print Error: {type(text).__name__}]")
 
 # Configure logging
 if IS_RAILWAY:
