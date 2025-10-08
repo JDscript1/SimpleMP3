@@ -22,11 +22,68 @@ import re
 import hashlib
 import secrets
 import random
+import ssl
+import sys
 from flask import Flask, render_template, request, jsonify, send_file, url_for, send_from_directory, make_response, session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from datetime import datetime, timedelta
 import shutil
+
+# Disable SSL verification completely for local testing
+os.environ['PYTHONHTTPSVERIFY'] = '0'
+os.environ['CURL_CA_BUNDLE'] = ''
+os.environ['REQUESTS_CA_BUNDLE'] = ''
+
+# Create unverified SSL context
+ssl._create_default_https_context = ssl._create_unverified_context
+
+# Configure UTF-8 encoding for Windows
+if sys.platform == 'win32':
+    import codecs
+    try:
+        # Create a wrapper for stdout and stderr that handles encoding safely
+        class SafeStdout:
+            def __init__(self, original_stream):
+                self.original_stream = original_stream
+            
+            def write(self, text):
+                try:
+                    # Ensure text is a string, not bytes
+                    if isinstance(text, bytes):
+                        text = text.decode('utf-8', errors='replace')
+                    
+                    # Convert to string if not already
+                    text = str(text)
+                    
+                    # Write to original stream
+                    self.original_stream.write(text)
+                except (UnicodeEncodeError, UnicodeDecodeError, AttributeError):
+                    try:
+                        # Replace problematic characters
+                        if isinstance(text, bytes):
+                            text = text.decode('utf-8', errors='replace')
+                        safe_text = str(text).encode('ascii', 'replace').decode('ascii')
+                        self.original_stream.write(safe_text)
+                    except Exception:
+                        # Last resort - write a safe message
+                        self.original_stream.write(f"[Safe Print Error: {type(text).__name__}]")
+                return len(text)
+            
+            def flush(self):
+                if hasattr(self.original_stream, 'flush'):
+                    self.original_stream.flush()
+            
+            def __getattr__(self, name):
+                return getattr(self.original_stream, name)
+        
+        sys.stdout = SafeStdout(sys.stdout)
+        sys.stderr = SafeStdout(sys.stderr)
+    except:
+        # Fallback: use replace mode for problematic characters
+        import io
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 import subprocess
 from functools import wraps
 import logging
@@ -39,7 +96,7 @@ if IS_RAILWAY:
     # Railway deployment - disable modules
     PSUTIL_AVAILABLE = False
     PERFORMANCE_OPTIMIZER_AVAILABLE = False
-    print("WARNING: Running on Railway - modules disabled")
+    safe_print("WARNING: Running on Railway - modules disabled")
 else:
     # Local development - enable modules
     try:
@@ -47,14 +104,14 @@ else:
         PSUTIL_AVAILABLE = True
     except ImportError:
         PSUTIL_AVAILABLE = False
-        print("WARNING: psutil not available locally")
+        safe_print("WARNING: psutil not available locally")
     
     try:
         from performance_optimizer import PerformanceOptimizer
         PERFORMANCE_OPTIMIZER_AVAILABLE = True
     except ImportError:
         PERFORMANCE_OPTIMIZER_AVAILABLE = False
-        print("WARNING: performance_optimizer not available locally")
+        safe_print("WARNING: performance_optimizer not available locally")
 
 app = Flask(__name__)
 
@@ -74,6 +131,29 @@ def add_random_delay():
     """Adaugă un delay aleatoriu pentru a simula comportamentul uman"""
     delay = random.uniform(1.0, 3.0)  # Delay între 1-3 secunde
     time.sleep(delay)
+
+def safe_print(text):
+    """Print function that handles encoding issues on Windows"""
+    try:
+        # Ensure text is a string, not bytes
+        if isinstance(text, bytes):
+            text = text.decode('utf-8', errors='replace')
+        
+        # Convert to string if not already
+        text = str(text)
+        
+        # Try to print normally
+        print(str(text))
+    except (UnicodeEncodeError, UnicodeDecodeError, AttributeError) as e:
+        try:
+            # Replace problematic characters
+            if isinstance(text, bytes):
+                text = text.decode('utf-8', errors='replace')
+            safe_text = str(text).encode('ascii', 'replace').decode('ascii')
+            print(str(safe_text))
+        except Exception:
+            # Last resort - print a safe message
+            print(f"[Safe Print Error: {type(text).__name__}]")
 
 # Configure logging
 if IS_RAILWAY:
@@ -204,9 +284,9 @@ else:
 # Thread pool pentru conversii paralele
 try:
     thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=2)  # Reduced for Railway
-    print("Thread pool initialized successfully")
+    safe_print("Thread pool initialized successfully")
 except Exception as e:
-    print(f"Error initializing thread pool: {e}")
+    safe_print(f"Error initializing thread pool: {e}")
     thread_pool = None
 
 # Securitate - Rate limiting per IP
@@ -278,7 +358,7 @@ def cleanup_old_conversions():
     
     for conv_id in to_remove:
         del conversions[conv_id]
-        print(f"Cleaned up old conversion: {conv_id}")
+        safe_print(f"Cleaned up old conversion: {conv_id}")
     
     # Curăță conversiile per utilizator
     for user_id, user_conv in user_conversions.items():
@@ -294,7 +374,7 @@ def cleanup_old_conversions():
         
         for conv_id in to_remove_user:
             del user_conv[conv_id]
-            print(f"Cleaned up old user conversion: {user_id} - {conv_id}")
+            safe_print(f"Cleaned up old user conversion: {user_id} - {conv_id}")
 
 # Security functions
 def is_ip_blocked(ip):
@@ -430,9 +510,9 @@ def cleanup_old_files():
                 file_time = datetime.fromtimestamp(os.path.getctime(file_path))
                 if file_time < cutoff_time:
                     os.remove(file_path)
-                    print(f"Deleted old file: {filename}")
+                    safe_print(f"Deleted old file: {filename}")
     except Exception as e:
-        print(f"ERROR: Cleanup error: {e}")
+        safe_print(f"ERROR: Cleanup error: {e}")
 
 def get_video_info(url, conversion_id=None):
     """Extrage informații despre video"""
@@ -462,7 +542,7 @@ def get_video_info(url, conversion_id=None):
             
             return video_info
     except Exception as e:
-        print(f"ERROR: Information extraction error: {e}")
+        safe_print(f"ERROR: Information extraction error: {e}")
         return None
 
 def get_available_formats(url):
@@ -497,7 +577,7 @@ def get_available_formats(url):
             
             return audio_formats
     except Exception as e:
-        print(f"ERROR: Could not get available formats: {e}")
+        safe_print(f"ERROR: Could not get available formats: {e}")
         return []
 
 def convert_video_to_audio(url, conversion_id, settings):
@@ -536,10 +616,14 @@ def convert_video_to_audio(url, conversion_id, settings):
         
         # Obține setările optimizate
         if performance_optimizer:
-            ydl_opts = performance_optimizer.optimize_yt_dlp_settings(
-                url, quality, format_type, 
-                duration=conversions[conversion_id].get('duration', 0)
-            )
+            # Creează setările de bază pentru optimizator
+            base_settings = {
+                'url': url,
+                'quality': quality,
+                'format_type': format_type,
+                'duration': conversions[conversion_id].get('duration', 0)
+            }
+            ydl_opts = performance_optimizer.optimize_yt_dlp_settings(base_settings)
         else:
             # Setări de bază optimizate pentru conversie MP3 - DOAR AUDIO
             ydl_opts = {
@@ -578,9 +662,27 @@ def convert_video_to_audio(url, conversion_id, settings):
                 'http_chunk_size': 1048576,  # 1MB chunks
                 'socket_timeout': 30,  # Socket timeout
                 'no_check_certificate': True,  # Skip certificate check
-                'prefer_insecure': False,  # Prefer secure connections
+                'prefer_insecure': True,  # Prefer insecure connections for local testing
                 'geo_bypass': True,  # Bypass geo restrictions
                 'geo_bypass_country': 'US',  # Use US as country
+                # SSL configuration for local testing
+                'legacy_server_connect': True,  # Use legacy server connect
+                'http_headers': {
+                    'User-Agent': get_random_user_agent(),
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language': 'en-us,en;q=0.5',
+                    'Accept-Encoding': 'gzip, deflate',
+                    'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+                    'Connection': 'keep-alive',
+                },
+                'extractor_args': {
+                    'youtube': {
+                        'skip': ['dash', 'hls'],
+                        'player_skip': ['configs'],
+                        'comment_sort': ['top'],
+                        'max_comments': [0],
+                    }
+                },
             }
         
         # Adaugă path-ul de output cu extensia corectă (fără conversion_id în nume)
@@ -692,7 +794,7 @@ def convert_video_to_audio(url, conversion_id, settings):
                 del ydl_opts['postprocessors']
             if 'postprocessor_args' in ydl_opts:
                 del ydl_opts['postprocessor_args']
-            print("Railway: FFmpeg postprocessors disabled to avoid filesystem errors")
+            safe_print("Railway: FFmpeg postprocessors disabled to avoid filesystem errors")
         
         # Dacă FFmpeg nu este disponibil, elimină postprocessors
         if not ffmpeg_available:
@@ -703,14 +805,14 @@ def convert_video_to_audio(url, conversion_id, settings):
         
         # Descărcare și conversie
         if IS_RAILWAY:
-            print(f"Railway: FFmpeg available: {ffmpeg_available}")
-            print(f"Railway: Postprocessors: {'Yes' if 'postprocessors' in ydl_opts else 'No'}")
-            print(f"Railway: Format: {ydl_opts.get('format', 'Not set')}")
-            print(f"Railway: Output template: {ydl_opts.get('outtmpl', 'Not set')}")
-            print(f"Railway: Force download: {ydl_opts.get('force_download', 'Not set')}")
-            print(f"Railway: Extract flat: {ydl_opts.get('extract_flat', 'Not set')}")
-            print(f"Railway: Downloads directory: {DOWNLOADS_DIR}")
-            print(f"Railway: User agent: {ydl_opts.get('user_agent', 'Not set')}")
+            safe_print(f"Railway: FFmpeg available: {ffmpeg_available}")
+            safe_print(f"Railway: Postprocessors: {'Yes' if 'postprocessors' in ydl_opts else 'No'}")
+            safe_print(f"Railway: Format: {ydl_opts.get('format', 'Not set')}")
+            safe_print(f"Railway: Output template: {ydl_opts.get('outtmpl', 'Not set')}")
+            safe_print(f"Railway: Force download: {ydl_opts.get('force_download', 'Not set')}")
+            safe_print(f"Railway: Extract flat: {ydl_opts.get('extract_flat', 'Not set')}")
+            safe_print(f"Railway: Downloads directory: {DOWNLOADS_DIR}")
+            safe_print(f"Railway: User agent: {ydl_opts.get('user_agent', 'Not set')}")
         
         # Add random delay before download to avoid bot detection
         add_random_delay()
@@ -718,11 +820,11 @@ def convert_video_to_audio(url, conversion_id, settings):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             if IS_RAILWAY:
-                print(f"Railway: Download completed, info: {info.get('title', 'No title') if info else 'No info'}")
+                safe_print(f"Railway: Download completed, info: {info.get('title', 'No title') if info else 'No info'}")
                 if info:
-                    print(f"Railway: File size: {info.get('filesize', 'Unknown')} bytes")
-                    print(f"Railway: Duration: {info.get('duration', 'Unknown')} seconds")
-                    print(f"Railway: Filename: {info.get('filename', 'Unknown')}")
+                    safe_print(f"Railway: File size: {info.get('filesize', 'Unknown')} bytes")
+                    safe_print(f"Railway: Duration: {info.get('duration', 'Unknown')} seconds")
+                    safe_print(f"Railway: Filename: {info.get('filename', 'Unknown')}")
             
             # Salvează thumbnail-ul și informațiile video pentru preview
             if info and 'thumbnail' in info and info['thumbnail']:
@@ -738,9 +840,9 @@ def convert_video_to_audio(url, conversion_id, settings):
                         with open(thumbnail_path, 'wb') as f:
                             f.write(response.content)
                         conversions[conversion_id]['thumbnail'] = thumbnail_path
-                        print(f"Thumbnail saved: {thumbnail_path}")
+                        safe_print(f"Thumbnail saved: {thumbnail_path}")
                 except Exception as e:
-                    print(f"Could not save thumbnail: {e}")
+                    safe_print(f"Could not save thumbnail: {e}")
             
             # Salvează informațiile video pentru preview
             if info:
@@ -752,28 +854,28 @@ def convert_video_to_audio(url, conversion_id, settings):
                     'upload_date': info.get('upload_date', ''),
                     'description': info.get('description', '')[:200] + '...' if info.get('description') else ''
                 }
-                print(f"Video info saved for preview")
+                safe_print(f"Video info saved for preview")
             
             # Găsește fișierul descărcat după titlul video-ului
-            print(f"Looking for files in {DOWNLOADS_DIR} with extension {settings['audio_format']}")
+            safe_print(f"Looking for files in {DOWNLOADS_DIR} with extension {settings['audio_format']}")
             found_file = False
             expected_ext = settings['audio_format']
             
             # Get video title for file search
             video_title = info.get('title', '') if info else ''
-            print(f"Video title: {video_title}")
+            safe_print(f"Video title: {video_title}")
             
             # Ensure downloads directory exists
             if not os.path.exists(DOWNLOADS_DIR):
                 os.makedirs(DOWNLOADS_DIR, exist_ok=True)
-                print(f"Created downloads directory: {DOWNLOADS_DIR}")
+                safe_print(f"Created downloads directory: {DOWNLOADS_DIR}")
             
             # List all files in downloads directory for debugging
             try:
                 all_files = os.listdir(DOWNLOADS_DIR)
-                print(f"All files in downloads directory: {all_files}")
+                safe_print(f"All files in downloads directory: {all_files}")
             except Exception as e:
-                print(f"Error listing downloads directory: {e}")
+                safe_print(f"Error listing downloads directory: {e}")
             
             # Wait a moment for file operations to complete
             time.sleep(3)
@@ -782,11 +884,11 @@ def convert_video_to_audio(url, conversion_id, settings):
             if video_title:
                 # Clean video title for better matching
                 clean_title = video_title.replace('|', '').replace('｜', '').strip()
-                print(f"Looking for files containing: '{clean_title}'")
+                safe_print(f"Looking for files containing: '{clean_title}'")
                 
                 for file in os.listdir(DOWNLOADS_DIR):
                     if file.endswith(f'.{expected_ext}'):
-                        print(f"Checking file: {file}")
+                        safe_print(f"Checking file: {file}")
                         # Try multiple matching strategies
                         if (video_title in file or 
                             clean_title in file or 
@@ -823,13 +925,13 @@ def convert_video_to_audio(url, conversion_id, settings):
                             clean_filename = clean_filename.replace('_', ' ').replace('  ', ' ').strip()
                             
                             conversions[conversion_id]['filename'] = clean_filename
-                            print(f"Found file by title: {file_path}")
+                            safe_print(f"Found file by title: {file_path}")
                             found_file = True
                             break
             
             # If not found by title, try any file with correct extension created recently
             if not found_file:
-                print("File not found by title, trying recent files...")
+                safe_print("File not found by title, trying recent files...")
                 recent_files = []
                 for file in os.listdir(DOWNLOADS_DIR):
                     if file.endswith(f'.{expected_ext}'):
@@ -838,7 +940,7 @@ def convert_video_to_audio(url, conversion_id, settings):
                             file_mtime = os.path.getmtime(file_path)
                             if file_mtime > start_time - 60:  # Created in last minute
                                 recent_files.append((file, file_path, file_mtime))
-                                print(f"Found recent file: {file} (modified: {file_mtime})")
+                                safe_print(f"Found recent file: {file} (modified: {file_mtime})")
                         except OSError:
                             continue
                 
@@ -876,15 +978,15 @@ def convert_video_to_audio(url, conversion_id, settings):
                         clean_filename = clean_filename.replace('_', ' ').replace('  ', ' ').strip()
                         
                         conversions[conversion_id]['filename'] = clean_filename
-                        print(f"Using most recent file: {file_path}")
+                        safe_print(f"Using most recent file: {file_path}")
                         found_file = True
                         break
                     except (OSError, IOError) as e:
-                        print(f"Error accessing file {file_path}: {e}")
+                        safe_print(f"Error accessing file {file_path}: {e}")
                         continue
             
             if not found_file:
-                print(f"ERROR: No file found starting with {conversion_id}")
+                safe_print(f"ERROR: No file found starting with {conversion_id}")
                 # Try to find any recent files
                 recent_files = []
                 try:
@@ -917,16 +1019,16 @@ def convert_video_to_audio(url, conversion_id, settings):
                         
                         conversions[conversion_id]['file_path'] = file_path
                         conversions[conversion_id]['filename'] = os.path.basename(file_path)
-                        print(f"Using most recent file: {file_path}")
+                        safe_print(f"Using most recent file: {file_path}")
                         found_file = True
                     
                     if not found_file:
-                        print("ERROR: No recent files found")
+                        safe_print("ERROR: No recent files found")
                         conversions[conversion_id]['status'] = 'error'
                         conversions[conversion_id]['error'] = 'No output file found after conversion'
                         return
                 except Exception as e:
-                    print(f"ERROR: Exception while looking for files: {e}")
+                    safe_print(f"ERROR: Exception while looking for files: {e}")
                     conversions[conversion_id]['status'] = 'error'
                     conversions[conversion_id]['error'] = f'Error finding output file: {str(e)}'
                     return
@@ -941,14 +1043,14 @@ def convert_video_to_audio(url, conversion_id, settings):
                     file_size = os.path.getsize(conversions[conversion_id]['file_path'])
                     conversion_time = time.time() - start_time
                     performance_optimizer.add_to_cache(
-                        url, quality, format_type, conversions[conversion_id]['file_path'], file_size, conversion_time
+                        url, quality, format_type, conversions[conversion_id]['file_path']
                     )
                     
                     # Actualizează metricile
                     performance_optimizer.metrics['total_conversions'] += 1
                     performance_optimizer.metrics['conversions'].append(conversion_time)
                 except (OSError, IOError) as e:
-                    print(f"Could not add to cache: {e}")
+                    safe_print(f"Could not add to cache: {e}")
             
             # Try to get file size for display
             try:
@@ -956,19 +1058,29 @@ def convert_video_to_audio(url, conversion_id, settings):
                 if file_path and os.path.exists(file_path):
                     file_size = os.path.getsize(file_path)
                     conversions[conversion_id]['file_size'] = file_size
-                    print(f"File size: {file_size} bytes")
+                    safe_print(f"File size: {file_size} bytes")
             except (OSError, IOError) as e:
-                print(f"Could not get file size: {e}")
+                safe_print(f"Could not get file size: {e}")
             
-            print(f"Conversion completed: {conversion_id}")
+            safe_print(f"Conversion completed: {conversion_id}")
             
     except Exception as e:
         error_msg = str(e)
-        print(f"ERROR: Conversion error: {e}")
+        safe_print(f"ERROR: Conversion error: {e}")
+        
+        # Verifică dacă fișierul există înainte de a marca conversia ca error
+        if conversion_id in conversions:
+            file_path = conversions[conversion_id].get('file_path')
+            if file_path and os.path.exists(file_path):
+                safe_print(f"File exists despite error, marking as completed: {file_path}")
+                conversions[conversion_id]['status'] = 'completed'
+                conversions[conversion_id]['progress'] = 100
+                conversions[conversion_id]['completed_at'] = datetime.now().isoformat()
+                return
         
         # Gestionare specifică pentru detectarea bot-ului
         if "Sign in to confirm you're not a bot" in error_msg:
-            print("Bot detection detected, trying minimal approach...")
+            safe_print("Bot detection detected, trying minimal approach...")
             try:
                 # Încearcă cu configurație foarte simplă
                 ydl_opts_minimal = {
@@ -984,10 +1096,17 @@ def convert_video_to_audio(url, conversion_id, settings):
                     'writeautomaticsub': False,
                     'ignoreerrors': True,
                     'no_check_certificate': True,
-                    'prefer_insecure': False,
+                    'prefer_insecure': True,
                     'geo_bypass': True,
                     'geo_bypass_country': 'US',
                     'retries': 1,
+                    'legacy_server_connect': True,
+                    'http_headers': {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Accept-Language': 'en-us,en;q=0.5',
+                        'Connection': 'keep-alive',
+                    },
                     'fragment_retries': 1,
                     'extractor_retries': 1,
                     'sleep_interval': 1,
@@ -1000,19 +1119,19 @@ def convert_video_to_audio(url, conversion_id, settings):
                 with yt_dlp.YoutubeDL(ydl_opts_minimal) as ydl:
                     ydl.download([url])
                 
-                print("Minimal approach successful")
+                safe_print("Minimal approach successful")
                 return
             except Exception as minimal_error:
-                print(f"Minimal approach also failed: {minimal_error}")
+                safe_print(f"Minimal approach also failed: {minimal_error}")
                 error_msg = f"All approaches failed. Last error: {str(minimal_error)}"
         
         # Gestionare specifică pentru formaturi indisponibile
         elif "Requested format is not available" in error_msg:
-            print("Attempting fallback format...")
+            safe_print("Attempting fallback format...")
             try:
                 # Obține formaturile disponibile
                 available_formats = get_available_formats(url)
-                print(f"Available audio formats: {available_formats}")
+                safe_print(f"Available audio formats: {available_formats}")
                 
                 # Încearcă cu format mai simplu - DOAR AUDIO
                 ydl_opts_fallback = ydl_opts.copy()
@@ -1022,10 +1141,10 @@ def convert_video_to_audio(url, conversion_id, settings):
                     ydl.download([url])
                 
                 # Continuă cu procesarea normală
-                print("Fallback format successful")
+                safe_print("Fallback format successful")
                 return
             except Exception as fallback_error:
-                print(f"Fallback also failed: {fallback_error}")
+                safe_print(f"Fallback also failed: {fallback_error}")
                 error_msg = f"Format not available. Available formats: {len(available_formats) if 'available_formats' in locals() else 0}. Error: {str(fallback_error)}"
         
         conversions[conversion_id]['status'] = 'error'
@@ -1052,28 +1171,28 @@ def update_progress(conversion_id, d):
             if 'filename' in d and d['filename']:
                 file_path = d['filename']
                 if IS_RAILWAY:
-                    print(f"Railway: Finished callback - filename: {file_path}")
+                    safe_print(f"Railway: Finished callback - filename: {file_path}")
                 if os.path.exists(file_path):
                     conversions[conversion_id]['file_path'] = file_path
                     conversions[conversion_id]['filename'] = os.path.basename(file_path)
                     if IS_RAILWAY:
-                        print(f"Railway: File found at: {file_path}")
+                        safe_print(f"Railway: File found at: {file_path}")
                 else:
                     # Caută fișierul în folderul downloads
                     filename = os.path.basename(file_path)
                     downloads_path = os.path.join(DOWNLOADS_DIR, filename)
                     if IS_RAILWAY:
-                        print(f"Railway: Looking for file at: {downloads_path}")
+                        safe_print(f"Railway: Looking for file at: {downloads_path}")
                     if os.path.exists(downloads_path):
                         conversions[conversion_id]['file_path'] = downloads_path
                         conversions[conversion_id]['filename'] = filename
                         if IS_RAILWAY:
-                            print(f"Railway: File found in downloads: {downloads_path}")
+                            safe_print(f"Railway: File found in downloads: {downloads_path}")
                     else:
                         conversions[conversion_id]['status'] = 'error'
                         conversions[conversion_id]['error'] = 'Output file not found'
                         if IS_RAILWAY:
-                            print(f"Railway: File not found anywhere: {file_path}")
+                            safe_print(f"Railway: File not found anywhere: {file_path}")
         elif d['status'] == 'error':
             conversions[conversion_id]['status'] = 'error'
             conversions[conversion_id]['error'] = d.get('error', 'Download failed')
@@ -1087,7 +1206,7 @@ def index():
         return security_headers(response)
     except Exception as e:
         if IS_RAILWAY:
-            print(f"Template error on Railway: {e}")
+            safe_print(f"Template error on Railway: {e}")
             # Pe Railway - returnează eroare JSON în loc de HTML
             return jsonify({
                 "error": "Template not found", 
@@ -1180,11 +1299,11 @@ def convert_video():
     """Începe conversia video-ului"""
     try:
         # Check human verification first
-        print(f"Session data: {dict(session)}")
-        print(f"Human verified: {session.get('human_verified')}")
+        safe_print(f"Session data: {dict(session)}")
+        safe_print(f"Human verified: {session.get('human_verified')}")
         
         if not session.get('human_verified'):
-            print("Human verification required - user not verified")
+            safe_print("Human verification required - user not verified")
             return jsonify({'success': False, 'error': 'Human verification required'}), 403
         
         data = request.get_json()
@@ -1224,14 +1343,14 @@ def convert_video():
         user_conversions[user_id] = user_conversions.get(user_id, {})
         user_conversions[user_id][conversion_id] = conversion_data
         
-        print(f"Started conversion {conversion_id} for user {user_id}")
+        safe_print(f"Started conversion {conversion_id} for user {user_id}")
         
         # Pornește conversia în thread pool pentru performanță optimă
         if thread_pool:
             future = thread_pool.submit(convert_video_to_audio, url, conversion_id, settings)
         else:
             # Fallback: run in current thread if thread pool is not available
-            print("Thread pool not available, running conversion in current thread")
+            safe_print("Thread pool not available, running conversion in current thread")
             convert_video_to_audio(url, conversion_id, settings)
             return jsonify({
                 'success': True,
@@ -1263,7 +1382,7 @@ def get_status(conversion_id):
         
         # Verifică dacă utilizatorul are acces la această conversie
         if conversion.get('user_id') != user_id:
-            print(f"Access denied: user {user_id} tried to access conversion {conversion_id} owned by {conversion.get('user_id')}")
+            safe_print(f"Access denied: user {user_id} tried to access conversion {conversion_id} owned by {conversion.get('user_id')}")
             return jsonify({'success': False, 'error': 'Access denied'}), 403
         
         response = {
@@ -1281,9 +1400,9 @@ def get_status(conversion_id):
             response['filename'] = conversion.get('filename', '')
             response['file_size'] = os.path.getsize(conversion['file_path']) if os.path.exists(conversion['file_path']) else 0
             
-            print(f"Status response - download_url: {response['download_url']}")
-            print(f"Status response - filename: {response['filename']}")
-            print(f"Status response - file_size: {response['file_size']}")
+            safe_print(f"Status response - download_url: {response['download_url']}")
+            safe_print(f"Status response - filename: {response['filename']}")
+            safe_print(f"Status response - file_size: {response['file_size']}")
             
             # Adaugă thumbnail-ul și informațiile video pentru preview
             if conversion.get('thumbnail'):
@@ -1301,10 +1420,10 @@ def get_status(conversion_id):
 def download_file(conversion_id):
     """Descarcă fișierul convertit"""
     try:
-        print(f"Download request for conversion_id: {conversion_id}")
+        safe_print(f"Download request for conversion_id: {conversion_id}")
         
         if conversion_id not in conversions:
-            print(f"Conversion {conversion_id} not found in conversions")
+            safe_print(f"Conversion {conversion_id} not found in conversions")
             return jsonify({'error': 'Conversion does not exist'}), 404
         
         conversion = conversions[conversion_id]
@@ -1312,33 +1431,33 @@ def download_file(conversion_id):
         
         # Verifică dacă utilizatorul are acces la această conversie
         if conversion.get('user_id') != user_id:
-            print(f"Download access denied: user {user_id} tried to download conversion {conversion_id} owned by {conversion.get('user_id')}")
+            safe_print(f"Download access denied: user {user_id} tried to download conversion {conversion_id} owned by {conversion.get('user_id')}")
             return jsonify({'error': 'Access denied'}), 403
         
-        print(f"Conversion status: {conversion['status']}")
+        safe_print(f"Conversion status: {conversion['status']}")
         
         if conversion['status'] != 'completed':
-            print(f"Conversion not completed: {conversion['status']}")
+            safe_print(f"Conversion not completed: {conversion['status']}")
             return jsonify({'error': 'Conversion is not complete'}), 400
         
         file_path = conversion.get('file_path')
-        print(f"File path: {file_path}")
+        safe_print(f"File path: {file_path}")
         
         if not file_path:
-            print("File path is not set")
+            safe_print("File path is not set")
             return jsonify({'error': 'File path is not set'}), 404
             
         if not os.path.exists(file_path):
-            print(f"File does not exist: {file_path}")
+            safe_print(f"File does not exist: {file_path}")
             return jsonify({'error': 'File does not exist'}), 404
         
         filename = conversion.get('filename', 'download')
-        print(f"Sending file: {file_path} as {filename}")
+        safe_print(f"Sending file: {file_path} as {filename}")
         
         return send_file(file_path, as_attachment=True, download_name=filename)
         
     except Exception as e:
-        print(f"Download error: {e}")
+        safe_print(f"Download error: {e}")
         return jsonify({'error': f'Download error: {str(e)}'}), 500
 
 @app.route('/api/thumbnail/<conversion_id>')
@@ -1411,8 +1530,8 @@ def verify_human():
         data = request.get_json()
         verified = data.get('verified')
         
-        print(f"Verification request: {data}")
-        print(f"Verified flag: {verified}")
+        safe_print(f"Verification request: {data}")
+        safe_print(f"Verified flag: {verified}")
         
         if verified:
             # Log successful verification
@@ -1422,7 +1541,7 @@ def verify_human():
             session['human_verified'] = True
             session['verification_time'] = time.time()
             
-            print(f"Session set - human_verified: {session.get('human_verified')}")
+            safe_print(f"Session set - human_verified: {session.get('human_verified')}")
             
             return jsonify({
                 'success': True,
@@ -1437,14 +1556,14 @@ def verify_human():
 
 
 if __name__ == '__main__':
-    print("Starting SimpleMP3 Converter...")
-    print("Open browser at: http://localhost:5000")
-    print("Professional features activated")
-    print("Advanced settings available")
-    print("Dark/Light themes")
-    print("Performance optimizations activated")
-    print("Intelligent cache activated")
-    print("To stop: Press Ctrl+C")
+    safe_print("Starting SimpleMP3 Converter...")
+    safe_print("Open browser at: http://localhost:5000")
+    safe_print("Professional features activated")
+    safe_print("Advanced settings available")
+    safe_print("Dark/Light themes")
+    safe_print("Performance optimizations activated")
+    safe_print("Intelligent cache activated")
+    safe_print("To stop: Press Ctrl+C")
     
     # Curăță fișierele vechi la pornire
     cleanup_old_files()
@@ -1469,17 +1588,17 @@ if __name__ == '__main__':
     # Only run if this is the main module (not imported)
     if __name__ == '__main__':
         try:
-            print(f"Starting Flask app on {host}:{port}, debug={debug_mode}")
-            print(f"IS_RAILWAY: {IS_RAILWAY}")
+            safe_print(f"Starting Flask app on {host}:{port}, debug={debug_mode}")
+            safe_print(f"IS_RAILWAY: {IS_RAILWAY}")
             app.run(host=host, port=port, debug=debug_mode)
         except KeyboardInterrupt:
-            print("\nStopping application...")
+            safe_print("\nStopping application...")
             if performance_optimizer:
                 performance_optimizer.stop_resource_monitoring()
             if thread_pool:
                 thread_pool.shutdown(wait=True)
-            print("Application stopped successfully")
+            safe_print("Application stopped successfully")
         except Exception as e:
-            print(f"Error starting Flask app: {e}")
+            safe_print(f"Error starting Flask app: {e}")
             import traceback
             traceback.print_exc()
